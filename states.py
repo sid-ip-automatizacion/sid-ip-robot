@@ -226,6 +226,23 @@ def state_change(environment):
         root.clipboard_clear()
         root.clipboard_append(textcp)
 
+    def searchChange(event):
+
+        cadena = search_text.get("1.0", "end").replace("\n", "").upper()
+        # print(cadena)
+        for i in range(len(list_label_wo)):
+            if len(cadena) >= 3 and cadena in comm.wo_values[i]['wo_descr'].upper():
+                list_label_wo[i][0].config(bg='yellow')
+                list_label_wo[i][1].config(bg='yellow')
+                list_label_wo[i][2].config(bg='yellow')
+                list_label_wo[i][3].config(bg='yellow')
+                list_label_wo[i][4].config(bg='yellow')
+            else:
+                list_label_wo[i][0].config(bg='white smoke')
+                list_label_wo[i][1].config(bg='white smoke')
+                list_label_wo[i][2].config(bg='white smoke')
+                list_label_wo[i][3].config(bg='white smoke')
+                list_label_wo[i][4].config(bg='white smoke')
 
     comm.update_wo()
 
@@ -243,25 +260,30 @@ def state_change(environment):
     frm_left.columnconfigure(2, weight=1, minsize=10)
     frm_left.columnconfigure(3, weight=1, minsize=10)
     frm_left.columnconfigure(4, weight=1, minsize=10)
+    frm_left.config(bg='white smoke')
 
     wo_selected = tk.IntVar(0)    # LLeva el registro de la WO seleccionada en la interfaz
+
+    list_label_wo = []
 
     def draw_wolist():
         """
         Dibuja la lista de WO en el GUI y asigna los botones de selección
         """
         worders = comm.wo_values
+        list_label_wo.clear()
         for widgets in frm_left.winfo_children():    # borra lista actual
             widgets.destroy()
         for wo_row in range(len(worders)):    # crea la interfaz con las WO
             frm_left.rowconfigure(wo_row + 1, weight=1, minsize=1)
-            label_wo_id = tk.Label(master=frm_left, text=worders[wo_row]['woid'])
-            but_cpwo = tk.Button(master=frm_left, text='c', width=1, height=1,
+            label_wo_id = tk.Label(master=frm_left, text=worders[wo_row]['woid'], bg='white smoke')
+            but_cpwo = tk.Button(master=frm_left, text='c', width=1, height=1, bg='white smoke',
                                  command=lambda wo_pass=worders[wo_row]['woid']: copy_clipboard(wo_pass))
-            label_wo_desc = tk.Label(master=frm_left, text=worders[wo_row]['wo_descr'])
-            label_wo_status = tk.Label(master=frm_left, text=worders[wo_row]['wo_status'])
+            label_wo_desc = tk.Label(master=frm_left, text=worders[wo_row]['wo_descr'], bg='white smoke')
+            label_wo_status = tk.Label(master=frm_left, text=worders[wo_row]['wo_status'], bg='white smoke')
             rad_btn = tk.Radiobutton(master=frm_left, text="# {}".format(wo_row), value=wo_row, command=select_wo,
-                                     variable=wo_selected)
+                                     bg='white smoke', variable=wo_selected)
+            list_label_wo.append((label_wo_id, but_cpwo, label_wo_desc, label_wo_status, rad_btn))
             rad_btn.grid(row=wo_row+1, column=0, sticky="nswe")
             label_wo_id.grid(row=wo_row+1, column=1, sticky="we")
             but_cpwo.grid(row=wo_row+1, column=2, sticky="w")
@@ -292,9 +314,9 @@ def state_change(environment):
                                                                                                        r=False: hand_click_order(k, r))
         but_status_up = tk.Button(master=frm_title_stat, text="\u2191", width=1, height=1, command=lambda w=woval, k='wo_status',
                                                                                                      r=True: hand_click_order(k, r))
-        woid_title = tk.Label(master=frm_title_woid, text='WO ID')
-        wodes_title = tk.Label(master=frm_title_des, text='Description')
-        wostat_title = tk.Label(master=frm_title_stat, text='Status')
+        woid_title = tk.Label(master=frm_title_woid, text='WO ID', bg='white smoke')
+        wodes_title = tk.Label(master=frm_title_des, text='Description', bg='white smoke')
+        wostat_title = tk.Label(master=frm_title_stat, text='Status', bg='white smoke')
         woid_title.grid(row=0, column=0, sticky="we")
         but_woid_down.grid(row=0, column=1)
         but_woid_up.grid(row=0, column=2)
@@ -322,9 +344,17 @@ def state_change(environment):
     frm_right.rowconfigure(6, weight=1, minsize=10)
     frm_right.rowconfigure(7, weight=1, minsize=10)
     frm_right.rowconfigure(8, weight=1, minsize=10)
+    frm_right.rowconfigure(9, weight=1, minsize=10)
 
     wo_tochange_lbl = tk.Label(master=frm_right, textvariable=wo_to_change.name_short)
     wo_tochange_lbl.grid(row=0, column=0, columnspan=2)
+
+    # search_text
+    searchlabel = tk.Label(master=frm_right, text="Search: ")
+    searchlabel.grid(row=1, column=0, pady=2, sticky=tk.E)
+    search_text = tk.Text(master=frm_right, width=15, height=1)
+    search_text.grid(row=1, column=1, sticky=tk.W, pady=2)
+    search_text.bind('<KeyRelease>', searchChange)
 
     # create a combobox
     states = ('INPRG', 'WORKPENDING')
@@ -333,39 +363,39 @@ def state_change(environment):
     state_cb['values'] = states
     state_cb['state'] = 'readonly'
     state_cb.current(1)
-    state_cb.grid(row=1, column=0, columnspan=2)
+    state_cb.grid(row=2, column=0, columnspan=2)
     state_cb.bind('<<ComboboxSelected>>', state_changed)
 
     #Create checkbox aplicar logs
     wrlog_value = tk.BooleanVar()
     wrlog_value.set(True)
     wrlog_chbutt = ttk.Checkbutton(master=frm_right, text='Create new log', variable=wrlog_value)
-    wrlog_chbutt.grid(row=2, column=0, columnspan=2)
+    wrlog_chbutt.grid(row=3, column=0, columnspan=2)
 
     #Create log title box
     titlelabel = tk.Label(master=frm_right, text="Title: ")
-    titlelabel.grid(row=3, column=0, sticky=tk.E)
+    titlelabel.grid(row=4, column=0, sticky=tk.E)
     titleText = tk.Text(master=frm_right, width=30, height=1)
-    titleText.grid(row=3, column=1, sticky=tk.W)
+    titleText.grid(row=4, column=1, sticky=tk.W)
 
     #Create log description box
     bodylabel = tk.Label(master=frm_right, text="Body: ")
-    bodylabel.grid(row=4, column=0, sticky=tk.E)
+    bodylabel.grid(row=5, column=0, sticky=tk.E)
     bodyText = tk.Text(master=frm_right, width=30, height=6)
-    bodyText.grid(row=4, column=1, sticky=tk.W)
+    bodyText.grid(row=5, column=1, sticky=tk.W)
 
     but_changestate = tk.Button(master=frm_right, text="Apply Change", width=14, height=2, command=handle_click_ce)  # boton para aplicar cambio de estado
-    but_changestate.grid(row=5, column=0, columnspan=2)
+    but_changestate.grid(row=6, column=0, columnspan=2)
 
     wo_to_change.change_result.set('...')
     change_result_lbl = tk.Label(master=frm_right, textvariable=wo_to_change.change_result)
-    change_result_lbl.grid(row=6, column=0, columnspan=2)
+    change_result_lbl.grid(row=7, column=0, columnspan=2)
 
     but_update = tk.Button(master=frm_right, text="Update", width=10, height=2, command=handle_click_update)  # boton para actualizar estados
-    but_update.grid(row=7, column=0, columnspan=2)
+    but_update.grid(row=8, column=0, columnspan=2)
 
     but_changeall = tk.Button(master=frm_right, text="All Workpending", width=16, height=2, command=handle_click_to_workpending)  # boton para actualizar todas a workpendig
-    but_changeall.grid(row=8, column=0, columnspan=2)
+    but_changeall.grid(row=9, column=0, columnspan=2)
 
     def crecer_ventana(event):
         environment.adjust_window(root)

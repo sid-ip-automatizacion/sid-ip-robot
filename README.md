@@ -8,3 +8,4 @@ Para ejecutar en python se deben incluir las siguientes librerías
 - python-dotenv
 - keyring
 - passlib
+- openpyxl

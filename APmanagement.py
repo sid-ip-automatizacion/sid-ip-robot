@@ -9,19 +9,6 @@ from tkinter import filedialog
 
 from AccessPoint import AccessPoint
 
-def init_var(envir):
-    """
-    Define las variables iniciales
-    :param envir: Ambiente GUI principal
-    :return: (root_win, user_sccd, pass_sccd, url_sccd)
-    """
-    user_sccd = envir.get_user_sccd()
-    pass_sccd = envir.get_pass_sccd()
-    owner_sccd = envir.get_owner_sccd()
-    url_sccd = envir.get_urlsccd()
-    root_win = envir.get_work_area()
-    meraki_api_key = envir.get_key_meraki()
-    return root_win, owner_sccd, user_sccd, pass_sccd, url_sccd, meraki_api_key
 
 def error_window(text):
         print("ERROR: {}".format(text))
@@ -120,8 +107,7 @@ class MerakiCommunicator():
         print(response)
 
 
-def main_function(environment):
-    root_win, owner_sccd, user_sccd, pass_sccd, url_sccd, meraki_key_api = init_var(environment)
+def main_function(root_win, meraki_key_api):
     controller = ControllerSpecific(meraki_key=meraki_key_api)
 
     def create_aplist_from_excel(vendor, conf_file):

@@ -3,19 +3,19 @@ from tkinter import *
 from tkinter import messagebox
 import tkinter as tk
 
-def init_var(envir):
-    """
-    Define las variables iniciales
-    :param envir: Ambiente GUI principal
-    :return: (root_win, user_sccd, pass_sccd, url_sccd)
-    """
-    user_sccd = envir.get_user_sccd()
-    pass_sccd = envir.get_pass_sccd()
-    owner_sccd = envir.get_owner_sccd()
-    url_sccd = envir.get_urlsccd()
-    root_win = envir.get_work_area()
-
-    return root_win, owner_sccd, user_sccd, pass_sccd, url_sccd
+# def init_var(envir):
+#     """
+#     Define las variables iniciales
+#     :param envir: Ambiente GUI principal
+#     :return: (root_win, user_sccd, pass_sccd, url_sccd)
+#     """
+#     user_sccd = envir.get_user_sccd()
+#     pass_sccd = envir.get_pass_sccd()
+#     owner_sccd = envir.get_owner_sccd()
+#     url_sccd = envir.get_urlsccd()
+#     root_win = envir.get_work_area()
+#
+#     return root_win, owner_sccd, user_sccd, pass_sccd, url_sccd
 
 mylist = []
 labelList = []
@@ -42,11 +42,11 @@ def textHasChanged2(event):
         new_owner.config(bg="white")
 
 
-def call_change_owner(environment):
+def call_change_owner(root_win, user, password, url):
     """
     Funcion principal para el cambio de owner de la WO
     """
-    root_win, initial_owner, user, password, url = init_var(environment)
+    #root_win, initial_owner, user, password, url = init_var(environment)
 
     session = requests.Session()
     session.get(url, auth=(user, password))
@@ -191,7 +191,7 @@ def call_change_owner(environment):
             labelList.append(b)
             b.grid(row=item, column=0)
 
-        environment.update_canvas()
+        #environment.update_canvas()
 
     # Creacion de los frame derecho e izquierdo
     root_win.columnconfigure(0, weight=2, minsize=40)

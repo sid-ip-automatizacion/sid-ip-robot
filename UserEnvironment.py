@@ -9,13 +9,18 @@ from pathlib import Path
 import states
 import new_owner
 import APmanagement
-# import phase1
-# TODO: adicionar la creacion de pantillas
 
 class UserEnvironment:
+    """
+    La clase UserEnvironment contiene los atributos y metodos que permiten crear la interfaz gráfica que comparten las
+    distintas aplicaciones
+    Dentro del UserEnviroment se leen y escriben variables que pueden ser empleadas por las aplicaciones. Estas variables son
+    típicamente las que se almacenan a largo plazo en el computados, como usuarios, contraseñas y URLs
+    El UserEnvironment también crea el área de trabajo que emplean las aplicaciones
+    """
     def __init__(self):
         self.passw =""  # Para verificar el password de la aplicacion, no el de SCCD
-        self.authenticated = False  # Indica si el usuariose autentico correctamente en la aplicacion
+        self.authenticated = False  # Indica si el usuario se autentico correctamente en la aplicacion
         self.attempts = 0  # Cantidad de intentos de autenticación en la aplicacion
         self.__hash_context = CryptContext(schemes=["pbkdf2_sha256"], default="pbkdf2_sha256",
                                                      pbkdf2_sha256__default_rounds=5000)  # Usado para hash del password
@@ -27,31 +32,23 @@ class UserEnvironment:
         Carga la ventana de cambios de estado
         """
         self.clear_work_area()  # Limpia el area de trabajo
-        states.state_change(self)  # Ejecuta el cambio de estado en el ambiente del usuario
+        states.state_change(self.get_work_area(), self.get_user_sccd(), self.get_user_sccd(), self.get_pass_sccd(),
+                            self.get_urlsccd())  # Ejecuta el cambio de estado en el ambiente del usuario
 
     def run_new_owner(self):
         """
         Carga la ventana de cambio de owner
         """
         self.clear_work_area()  # Limpia el area de trabajo
-        new_owner.call_change_owner(self)  # Ejecuta el cambio de estado en el ambiente del usuario
+        new_owner.call_change_owner(self.get_work_area(), self.get_user_sccd(), self.get_pass_sccd(),
+                                    self.get_urlsccd())  # Ejecuta el cambio de estado en el ambiente del usuario
 
     def run_aps(self):
         """
         Carga la ventana de manejo de APs
         """
         self.clear_work_area()  # Limpia el area de trabajo
-        APmanagement.main_function(self)  # Ejecuta el manejo de APs en el ambiente del usuario
-
-
-
-    # def run_templates(self):
-    #     """
-    #     Carga la ventana de plantillas
-    #     """
-    #     self.clear_work_area()  # Limpia el area de trabajo
-    #     phase1.phase1_gui(self)  # Ejecuta el modulo de plantillas
-    #TODO: Insertar la creación de plantillas
+        APmanagement.main_function(self.get_work_area(), self.get_key_meraki())  # Ejecuta el manejo de APs en el ambiente del usuario
 
     def initial_work_area(self):
         """
@@ -59,22 +56,17 @@ class UserEnvironment:
         """
         self.clear_work_area()  # Limpia el area de trabajo
         # Boton de Upgrade States
-        btn_submit = tkinter.Button(master=self.__work_area, text="Update States", height=2,
+        btn_submit = tkinter.Button(master=self.get_work_area(), text="Update States", height=2,
                                command=self.run_states)
-        btn_submit.pack(pady=5)
+        btn_submit.grid(row=0, column=0, pady=5)
         # Boton de Change Owner
         btn_change_owner = tkinter.Button(master=self.__work_area, text="Change WO owner", height=2,
                                command=self.run_new_owner)
-        btn_change_owner.pack(pady=5)
+        btn_change_owner.grid(row=1, column=0, pady=5)
         # Boton de AP Management
         btn_aps = tkinter.Button(master=self.__work_area, text="AP Management", height=2,
                                                             command=self.run_aps)
-        btn_aps.pack(pady=5)
-
-
-        # btn_submit = tkinter.Button(master=self.__work_area, text="Plantillas", height=2,
-        #                        command=self.run_templates)
-        #TODO: Insertar creacion de plantillas
+        btn_aps.grid(row=2, column=0, pady=5)
 
         self.__root.mainloop()
 
@@ -90,6 +82,10 @@ class UserEnvironment:
             self.__my_canvas.config(width=event.width, height=event.height)
             self.__root.update_idletasks()
             self.__my_canvas.configure(scrollregion=self.__my_canvas.bbox(self.__windows_item))
+        def working_area_configure(event):
+            self.__root.update_idletasks()
+            self.__my_canvas.configure(scrollregion=self.__my_canvas.bbox(self.__windows_item))
+
         main_frame = tkinter.Frame(self.__root)
         main_frame.pack(fill=tkinter.BOTH, expand=True)
         main_frame.rowconfigure(0, weight=1, minsize=10)
@@ -107,32 +103,35 @@ class UserEnvironment:
         scrollbar_horizontal.grid(row=1, column=0, sticky="ew", ipadx=10, ipady=10)
         scrollbar_vertical.grid(row=0, column=1, sticky="ns", ipadx=10, ipady=10)
         self.__my_canvas.configure(scrollregion=self.__my_canvas.bbox(self.__windows_item))
+        self.__work_area.bind('<Configure>', working_area_configure)
 
-        # Menu general
+        ## Barra de menu ##
         menubar = tkinter.Menu(self.__root)
         self.__root.config(menu=menubar)
-        filemenu = tkinter.Menu(menubar, tearoff=0)  # Menu Archivo
+        # Menu Archivo
+        filemenu = tkinter.Menu(menubar, tearoff=0)
         filemenu.add_command(label="Minimize", command=lambda: self.__root.iconify())
         filemenu.add_separator()
         filemenu.add_command(label="Close", command=lambda: self.__root.destroy())
-        myaccmenu = tkinter.Menu(menubar, tearoff=0)  # Menu Mi cuenta
+        # Menu Mi cuenta
+        myaccmenu = tkinter.Menu(menubar, tearoff=0)
         myaccmenu.add_command(label="Configure SCCD", command=self.set_sccd_credentials)
         myaccmenu.add_command(label="Change password", command=self.create_password)
         myaccmenu.add_command(labe="Configure Meraki API Key", command=self.set_meraki_key)
-        funmenu = tkinter.Menu(menubar, tearoff=0)  # Menu Funciones
+        # Menu Funciones
+        funmenu = tkinter.Menu(menubar, tearoff=0)
         funmenu.add_command(label="Update States", command=self.run_states)
         funmenu.add_command(label="Change WO owner", command=self.run_new_owner)
         funmenu.add_command(label="AP Management", command=self.run_aps)
-        #funmenu.add_command(label="Crear plantillas", command=self.run_templates)
-        #TODO: Insertar creación de plantillas
         funmenu.add_separator()
         funmenu.add_command(label="Return to init", command=self.initial_work_area)
-        infomenu = tkinter.Menu(menubar, tearoff=0)  # Menu Acerca de
+        # Menu Acerca de
+        infomenu = tkinter.Menu(menubar, tearoff=0)
         infomenu.add_command(label="About", command=self.show_about)
         menubar.add_cascade(label="File", menu=filemenu)  # Inserta menu Archivo
         menubar.add_cascade(label="My account", menu=myaccmenu)  # Inserta menu Mi cuenta
         menubar.add_cascade(label="Functions", menu=funmenu)  # Inserta menu Funciones
-        menubar.add_cascade(label="Info", menu=infomenu)  # Inserta menu Funciones
+        menubar.add_cascade(label="Info", menu=infomenu)  # Inserta menu Info
 
     def adjust_window(self, window):
         """
@@ -349,5 +348,5 @@ class UserEnvironment:
                                                   '\n\nDesarrollado por SID-IP Team, Cable & Wireless'
                                                   '\nEquipo de desarrollo:'
                                                   '\nAlvaro Molano, Cesar Castillo, Jose Cabezas, Nicole Paz, Ricardo Gamboa, William Galindo')
-        about_text.pack()
+        about_text.grid(row=0, column=0)
         about_win.mainloop()

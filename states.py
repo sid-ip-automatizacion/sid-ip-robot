@@ -1,5 +1,4 @@
 import requests
-import UserEnvironment
 import tkinter as tk
 from tkinter import ttk
 
@@ -117,19 +116,6 @@ class ComunicaMaximo:
         worder.change_result.set(info_message)
 
 
-def init_var(envir):
-    """
-    Define las variables iniciales
-    :param envir: Ambiente GUI principal
-    :return: (root_win, user_sccd, pass_sccd, url_sccd)
-    """
-    user_sccd = envir.get_user_sccd()
-    pass_sccd = envir.get_pass_sccd()
-    owner_sccd = envir.get_owner_sccd()
-    url_sccd = envir.get_urlsccd()
-    root_win = envir.get_work_area()
-    return root_win, owner_sccd, user_sccd, pass_sccd, url_sccd
-
 def show_error():
     """
            Muestra la ventana de error"
@@ -143,12 +129,10 @@ def show_error():
     ok_button.pack()
     error_win.mainloop()
 
-def state_change(environment):
+def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     """
     Funcion principal de la interface con cambio de estado de la WO
     """
-    root, owner_sccd, user_sccd, pass_sccd, login_url = init_var(environment)  # Define variables iniciales
-
     comm = ComunicaMaximo(owner_sccd, user_sccd, pass_sccd, login_url)         # crea instancia para comunicarse con maximo
     wo_to_change = WOselected()
 
@@ -402,19 +386,13 @@ def state_change(environment):
     but_changeall = tk.Button(master=frm_right, text="All Workpending", width=16, height=2, command=handle_click_to_workpending)  # boton para actualizar todas a workpendig
     but_changeall.grid(row=9, column=0, columnspan=2)
 
-    def crecer_ventana(event):
-        environment.adjust_window(root)
-    root.bind('<Configure>', crecer_ventana)
     root.mainloop()
 
 if __name__ == "__main__":
-    environment = UserEnvironment.UserEnvironment()
+    user_sccd = "USUARIO"  # Usuario SCCD de prueba
+    pass_sccd = "CONTRASEÑA"  # Contraseña SCCD de prueba
+    url_sccd = 'https://servicedesk.cwc.com/maximo/'
+    root_win = tk.Tk()
 
-    def init_var(envir):
-        user_sccd = "USUARIO"  # Usuario SCCD de prueba
-        pass_sccd = "CONTRASEÑA"  # Contraseña SCCD de prueba
-        url_sccd = 'https://servicedesk.cwc.com/maximo/'
-        root_win = tk.Tk()
-        return root_win, user_sccd, pass_sccd, url_sccd
+    state_change(root_win, user_sccd, user_sccd, pass_sccd, url_sccd)
 
-    state_change(environment)

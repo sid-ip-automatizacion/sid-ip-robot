@@ -47,7 +47,7 @@ class ComunicaMaximo:
         """
         # formato para solicitar todas las WO del usuario en estado Workpending y In progress que no sean task
         url_lref_allwo = '{init_url}oslc/os/sidwo?lean=1&oslc.pageSize=60&oslc.select=*&oslc.' \
-                         'where=owner="{uname}"and status IN ["WORKPENDING","INPRG"]and istask=false'. \
+                         'where=owner="{uname}"and status IN ["WORKPENDING","INPRG","QUEUED"]and istask=false'. \
             format(uname=self.owner, init_url=self.url)
         current_wo_list = []                               # Almacena las WO sin filtrar
         try:

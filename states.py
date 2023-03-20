@@ -259,7 +259,7 @@ def state_change(environment):
     frm_left = tk.Frame(master=root)
     frm_left.grid(row=1, column=0, sticky="nsew")
     frm_right = tk.Frame(master=root)
-    frm_right.grid(row=1, column=1, sticky="nsew", padx=(3, 0))
+    frm_right.grid(row=1, column=1, sticky="new", padx=(3, 0))
     frm_left.columnconfigure(0, weight=1, minsize=10)
     frm_left.columnconfigure(1, weight=1, minsize=10)
     frm_left.columnconfigure(2, weight=1, minsize=10)

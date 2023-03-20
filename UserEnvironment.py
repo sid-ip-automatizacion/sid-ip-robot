@@ -8,6 +8,7 @@ from pathlib import Path
 
 import states
 import new_owner
+import APmanagement
 # import phase1
 # TODO: adicionar la creacion de pantillas
 
@@ -35,6 +36,15 @@ class UserEnvironment:
         self.clear_work_area()  # Limpia el area de trabajo
         new_owner.call_change_owner(self)  # Ejecuta el cambio de estado en el ambiente del usuario
 
+    def run_aps(self):
+        """
+        Carga la ventana de manejo de APs
+        """
+        self.clear_work_area()  # Limpia el area de trabajo
+        APmanagement.main_function(self)  # Ejecuta el manejo de APs en el ambiente del usuario
+
+
+
     # def run_templates(self):
     #     """
     #     Carga la ventana de plantillas
@@ -52,18 +62,21 @@ class UserEnvironment:
         btn_submit = tkinter.Button(master=self.__work_area, text="Update States", height=2,
                                command=self.run_states)
         btn_submit.pack(pady=5)
-        #Boton de Change Owner
+        # Boton de Change Owner
         btn_change_owner = tkinter.Button(master=self.__work_area, text="Change WO owner", height=2,
                                command=self.run_new_owner)
         btn_change_owner.pack(pady=5)
+        # Boton de AP Management
+        btn_aps = tkinter.Button(master=self.__work_area, text="AP Management", height=2,
+                                                            command=self.run_aps)
+        btn_aps.pack(pady=5)
+
 
         # btn_submit = tkinter.Button(master=self.__work_area, text="Plantillas", height=2,
         #                        command=self.run_templates)
         #TODO: Insertar creacion de plantillas
 
         self.__root.mainloop()
-
-
 
     def create_work_area(self):
         """
@@ -105,9 +118,11 @@ class UserEnvironment:
         myaccmenu = tkinter.Menu(menubar, tearoff=0)  # Menu Mi cuenta
         myaccmenu.add_command(label="Configure SCCD", command=self.set_sccd_credentials)
         myaccmenu.add_command(label="Change password", command=self.create_password)
+        myaccmenu.add_command(labe="Configure Meraki API Key", command=self.set_meraki_key)
         funmenu = tkinter.Menu(menubar, tearoff=0)  # Menu Funciones
         funmenu.add_command(label="Update States", command=self.run_states)
         funmenu.add_command(label="Change WO owner", command=self.run_new_owner)
+        funmenu.add_command(label="AP Management", command=self.run_aps)
         #funmenu.add_command(label="Crear plantillas", command=self.run_templates)
         #TODO: Insertar creación de plantillas
         funmenu.add_separator()
@@ -147,7 +162,7 @@ class UserEnvironment:
 
     def create_password(self):
         """
-        Cambia el password de acceso a la alicacion
+        Cambia el password de acceso a la aplicacion
         """
         def set_newpass():
             new_password = ent_newpass.get()
@@ -252,6 +267,30 @@ class UserEnvironment:
         btn_save.grid(row=3, column=0, pady=5)
         sccd_cred_win.mainloop()
 
+    def set_meraki_key(self):
+        """
+        Guarda la API key de Meraki
+        """
+        def save_cred():
+            user_meraki = ent_user.get()
+            meraki_key = ent_key.get()
+            dotenv.set_key(self.__env_path, 'LOGIN_USER_MERAKI', user_meraki)  # Almacena usuario de login en archivo .env
+            keyring.set_password("MERAKI_API_KEY", user_meraki, meraki_key)  # Guarda el password en el banco de contraseñas del sistema operativo
+            sccd_cred_win.destroy()
+
+        sccd_cred_win = tkinter.Tk()
+        user_msg = tkinter.Label(sccd_cred_win, text="Meraki user")
+        user_msg.grid(row=0, column=0, padx=10, pady=10)
+        ent_user = tkinter.Entry(sccd_cred_win, width=20)
+        ent_user.grid(row=0, column=1, padx=10, pady=10)
+        key_msg = tkinter.Label(sccd_cred_win, text="Meraki api keyring")
+        key_msg.grid(row=1, column=0, padx=10, pady=10)
+        ent_key = tkinter.Entry(sccd_cred_win, show="*", width=20)
+        ent_key.grid(row=1, column=1, padx=10, pady=10)
+        btn_save = tkinter.Button(sccd_cred_win, text="Save Meraki Auth", command=save_cred)
+        btn_save.grid(row=2, column=0, pady=5)
+        sccd_cred_win.mainloop()
+
     def get_root_window(self):
         return self.__root
 
@@ -265,12 +304,27 @@ class UserEnvironment:
         """
         return os.environ["LOGIN_USER_SCCD"]
 
+    def get_user_meraki(self):
+        """
+        Obtiene el usuario de meraki desde las variables de entorno
+        :return: Usuario de meraki
+        """
+        return os.environ["LOGIN_USER_MERAKI"]
+
     def get_pass_sccd(self):
         """
         Obtiene la contraseña de SCCD desde el banco de contraseñas del sistema operativo
         :return: Contraseña de SCCD
         """
         return keyring.get_password("SCCD_KEY", self.get_user_sccd())
+
+    def get_key_meraki(self):
+        """
+        Obtiene la API key de Meraki desde el banco de contraseñas del sistema operativo
+        :return: API Key para meraki
+        """
+        return keyring.get_password("MERAKI_API_KEY", self.get_user_meraki())
+
     def get_owner_sccd(self):
         """
         Obtiene el owner de SCCD desde las variables de entorno
@@ -290,7 +344,8 @@ class UserEnvironment:
         Muestra la ventana Acerca de"
         """
         about_win = tkinter.Tk()
-        about_text = tkinter.Label(about_win, text='version: 2.0'
+        about_text = tkinter.Label(about_win, text='version: 3.1'
+                                                   '\nSID-IP release'
                                                   '\n\nDesarrollado por SID-IP Team, Cable & Wireless'
                                                   '\nEquipo de desarrollo:'
                                                   '\nAlvaro Molano, Cesar Castillo, Jose Cabezas, Nicole Paz, Ricardo Gamboa, William Galindo')

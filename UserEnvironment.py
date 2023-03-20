@@ -7,12 +7,13 @@ from passlib.context import CryptContext
 from pathlib import Path
 
 import states
+import new_owner
 # import phase1
 # TODO: adicionar la creacion de pantillas
 
 class UserEnvironment:
     def __init__(self):
-        self.passw =""  # Para verivicar el password de la aplicacion, no el de SCCD
+        self.passw =""  # Para verificar el password de la aplicacion, no el de SCCD
         self.authenticated = False  # Indica si el usuariose autentico correctamente en la aplicacion
         self.attempts = 0  # Cantidad de intentos de autenticación en la aplicacion
         self.__hash_context = CryptContext(schemes=["pbkdf2_sha256"], default="pbkdf2_sha256",
@@ -27,6 +28,13 @@ class UserEnvironment:
         self.clear_work_area()  # Limpia el area de trabajo
         states.state_change(self)  # Ejecuta el cambio de estado en el ambiente del usuario
 
+    def run_new_owner(self):
+        """
+        Carga la ventana de cambio de owner
+        """
+        self.clear_work_area()  # Limpia el area de trabajo
+        new_owner.call_change_owner(self)  # Ejecuta el cambio de estado en el ambiente del usuario
+
     # def run_templates(self):
     #     """
     #     Carga la ventana de plantillas
@@ -40,15 +48,22 @@ class UserEnvironment:
         Carga la ventana inicial del area de trabajo
         """
         self.clear_work_area()  # Limpia el area de trabajo
+        # Boton de Upgrade States
         btn_submit = tkinter.Button(master=self.__work_area, text="Update States", height=2,
                                command=self.run_states)
         btn_submit.pack(pady=5)
+        #Boton de Change Owner
+        btn_change_owner = tkinter.Button(master=self.__work_area, text="Change WO owner", height=2,
+                               command=self.run_new_owner)
+        btn_change_owner.pack(pady=5)
 
         # btn_submit = tkinter.Button(master=self.__work_area, text="Plantillas", height=2,
         #                        command=self.run_templates)
         #TODO: Insertar creacion de plantillas
-        btn_submit.pack(pady=5)
+
         self.__root.mainloop()
+
+
 
     def create_work_area(self):
         """
@@ -78,6 +93,7 @@ class UserEnvironment:
         self.__my_canvas.grid(row=0, column=0, sticky="nsew")
         scrollbar_horizontal.grid(row=1, column=0, sticky="ew", ipadx=10, ipady=10)
         scrollbar_vertical.grid(row=0, column=1, sticky="ns", ipadx=10, ipady=10)
+        self.__my_canvas.configure(scrollregion=self.__my_canvas.bbox(self.__windows_item))
 
         # Menu general
         menubar = tkinter.Menu(self.__root)
@@ -91,6 +107,7 @@ class UserEnvironment:
         myaccmenu.add_command(label="Change password", command=self.create_password)
         funmenu = tkinter.Menu(menubar, tearoff=0)  # Menu Funciones
         funmenu.add_command(label="Update States", command=self.run_states)
+        funmenu.add_command(label="Change WO owner", command=self.run_new_owner)
         #funmenu.add_command(label="Crear plantillas", command=self.run_templates)
         #TODO: Insertar creación de plantillas
         funmenu.add_separator()
@@ -115,6 +132,11 @@ class UserEnvironment:
             self.__root.update_idletasks()
             self.__my_canvas.itemconfig(self.__windows_item, height=self.__root.winfo_height())
             self.__my_canvas.configure(scrollregion=self.__my_canvas.bbox(self.__windows_item))
+
+    def update_canvas(self):
+        self.__my_canvas.update_idletasks()
+        self.__my_canvas.configure(scrollregion=self.__my_canvas.bbox(self.__windows_item))
+        self.__my_canvas.configure(scrollregion=self.__my_canvas.bbox(self.__windows_item))
 
     def clear_work_area(self):
         """
@@ -268,7 +290,7 @@ class UserEnvironment:
         Muestra la ventana Acerca de"
         """
         about_win = tkinter.Tk()
-        about_text = tkinter.Label(about_win, text='version: 1.2'
+        about_text = tkinter.Label(about_win, text='version: 2.0'
                                                   '\n\nDesarrollado por SID-IP Team, Cable & Wireless'
                                                   '\nEquipo de desarrollo:'
                                                   '\nAlvaro Molano, Cesar Castillo, Jose Cabezas, Nicole Paz, Ricardo Gamboa, William Galindo')

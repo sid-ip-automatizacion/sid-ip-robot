@@ -39,7 +39,7 @@ class ComunicaMaximo:
         self.uname = user_sccd
         self.owner = owner_sccd
         self.session = requests.Session()
-        self.session.get(self.url, auth=(self.uname, pass_sccd))   # Crea una conexión a SCCD
+        self.pass_sccd = pass_sccd
 
     def update_wo(self):
         """
@@ -51,6 +51,7 @@ class ComunicaMaximo:
             format(uname=self.owner, init_url=self.url)
         current_wo_list = []                               # Almacena las WO sin filtrar
         try:
+            self.session.get(self.url, auth=(self.uname, self.pass_sccd))  # Crea una conexión a SCCD
             response_allwo = self.session.get(url_lref_allwo)  # Recibe todas las WO
             print(response_allwo)
             data_allwo = response_allwo.json()                 # Todas las WO en formato JSON
@@ -73,6 +74,7 @@ class ComunicaMaximo:
         url_lref_wo = '{init_url}oslc/os/sidwo?lean=1&oslc.select=*&oslc.where=wonum="{wo}"'.format(wo=worder.id,
                                                                                                    init_url=self.url)
         try:
+            self.session.get(self.url, auth=(self.uname, self.pass_sccd))
             response_wo = self.session.get(url_lref_wo)
             data_wo = response_wo.json()
             href_str = data_wo['member'][0]['href']
@@ -190,14 +192,16 @@ def state_change(environment):
             btext = bodyText.get("1.0", "end-1c")
             print(btext)
         comm.changer(wo_to_change, state_cb.get(), ttext, btext, wrlog_value.get())
+        handle_click_update(False)
 
-    def handle_click_update():
+    def handle_click_update(deletetext):
         print("actualizar todas la wo")
         comm.update_wo()
         comm.wo_values = fill_info()
         draw_wolist()
         draw_title()
-        wo_to_change.change_result.set('...')
+        if deletetext:
+            wo_to_change.change_result.set('...')
         wo_to_change.name.set(comm.wo_values[wo_selected.get()]['wo_descr'])
 
     def handle_click_to_workpending():
@@ -212,6 +216,7 @@ def state_change(environment):
                 print("la WO {} ya esta en WORKPENDING".format(comm.wo_list[wo]['wogroup']))
         wo_to_change.change_result.set('...')
         wo_to_change.name.set(comm.wo_values[wo_selected.get()]['wo_descr'])
+        handle_click_update(True)
 
     def hand_click_order(keyval, rev):
         print("ordenando")
@@ -391,7 +396,7 @@ def state_change(environment):
     change_result_lbl = tk.Label(master=frm_right, textvariable=wo_to_change.change_result)
     change_result_lbl.grid(row=7, column=0, columnspan=2)
 
-    but_update = tk.Button(master=frm_right, text="Update", width=10, height=2, command=handle_click_update)  # boton para actualizar estados
+    but_update = tk.Button(master=frm_right, text="Update", width=10, height=2, command=lambda dt=True: handle_click_update(dt))  # boton para actualizar estados
     but_update.grid(row=8, column=0, columnspan=2)
 
     but_changeall = tk.Button(master=frm_right, text="All Workpending", width=16, height=2, command=handle_click_to_workpending)  # boton para actualizar todas a workpendig

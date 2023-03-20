@@ -268,7 +268,7 @@ class UserEnvironment:
         Muestra la ventana Acerca de"
         """
         about_win = tkinter.Tk()
-        about_text = tkinter.Label(about_win, text='version: 1.1'
+        about_text = tkinter.Label(about_win, text='version: 1.2'
                                                   '\n\nDesarrollado por SID-IP Team, Cable & Wireless'
                                                   '\nEquipo de desarrollo:'
                                                   '\nAlvaro Molano, Cesar Castillo, Jose Cabezas, Nicole Paz, Ricardo Gamboa, William Galindo')

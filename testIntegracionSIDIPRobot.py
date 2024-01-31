@@ -1,6 +1,6 @@
 import tkinter
 from tkinter import ttk
-import APmanagement  # importar el modulo
+import GUIconfigsw  # importar el modulo
 
 """
 El programa a integrar debe tener una función o metodo que acepte como primera entrada una ventana de tkinter, la cual
@@ -10,7 +10,7 @@ el computador como nombres de usuario, passwords y urls
 """
 ########################################################################################################################
 # En la siguiente linea defina modulo_run_function como la función o el método que ejecuta el modulo a probar
-modulo_run_function = APmanagement.main_function
+modulo_run_function = GUIconfigsw.exec_gui
 
 # En la siguiente sección llene los valores de las variables que use en la función a probar, los parametros que no
 # use dejelos con valor None

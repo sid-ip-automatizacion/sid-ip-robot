@@ -9,6 +9,7 @@ from pathlib import Path
 import states
 import new_owner
 import APmanagement
+import GUIconfigsw
 
 class UserEnvironment:
     """
@@ -50,6 +51,14 @@ class UserEnvironment:
         self.clear_work_area()  # Limpia el area de trabajo
         APmanagement.main_function(self.get_work_area(), self.get_key_meraki())  # Ejecuta el manejo de APs en el ambiente del usuario
 
+    def run_sw(self):
+        """
+        Carga la ventana de configuracion de switches
+        """
+        self.clear_work_area()  # Limpia el area de trabajo
+        GUIconfigsw.exec_gui(self.get_work_area(), self.get_key_meraki())  # Ejecuta la configuracion se switches en el ambiente usuario
+
+
     def initial_work_area(self):
         """
         Carga la ventana inicial del area de trabajo
@@ -67,6 +76,10 @@ class UserEnvironment:
         btn_aps = tkinter.Button(master=self.__work_area, text="AP Management", height=2,
                                                             command=self.run_aps)
         btn_aps.grid(row=2, column=0, pady=5)
+        # Boton de SW Configuration
+        btn_sw = tkinter.Button(master=self.__work_area, text="SW Configuration", height=2,
+                                 command=self.run_sw)
+        btn_sw.grid(row=3, column=0, pady=5)
 
         self.__root.mainloop()
 
@@ -123,6 +136,7 @@ class UserEnvironment:
         funmenu.add_command(label="Update States", command=self.run_states)
         funmenu.add_command(label="Change WO owner", command=self.run_new_owner)
         funmenu.add_command(label="AP Management", command=self.run_aps)
+        funmenu.add_command(label="SW Configuration", command=self.run_sw)
         funmenu.add_separator()
         funmenu.add_command(label="Return to init", command=self.initial_work_area)
         # Menu Acerca de
@@ -343,10 +357,11 @@ class UserEnvironment:
         Muestra la ventana Acerca de"
         """
         about_win = tkinter.Tk()
-        about_text = tkinter.Label(about_win, text='version: 3.1'
+        about_text = tkinter.Label(about_win, text='version: 4.0'
                                                    '\nSID-IP release'
                                                   '\n\nDesarrollado por SID-IP Team, Cable & Wireless'
                                                   '\nEquipo de desarrollo:'
-                                                  '\nAlvaro Molano, Cesar Castillo, Jose Cabezas, Nicole Paz, Ricardo Gamboa, William Galindo')
+                                                  '\nAlvaro Molano, Cesar Castillo, Jose Cabezas, Nicole Paz, Ricardo Gamboa, '
+                                                   'William Galindo, Ruben Vanegas')
         about_text.grid(row=0, column=0)
         about_win.mainloop()

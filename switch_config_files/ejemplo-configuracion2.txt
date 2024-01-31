@@ -1,0 +1,463 @@
+!Current Configuration:
+!System Description "Dell EMC Networking N1524P, 6.6.3.8, Linux 3.6.5, Not Available"
+!System Software Version 6.6.3.8
+!
+configure
+vlan 5,10,20,100,102,104-107,116,118,201-203
+exit
+vlan 20
+name "INVITADOS"
+exit
+vlan 100
+name "ADMINISTRACIONTI"
+exit
+vlan 102
+name "VOIP"
+exit
+vlan 104
+name "WIFICORPORATIVO"
+exit
+vlan 105
+name "WIFIINVITADOS"
+exit
+vlan 106
+name "ESPECIAL"
+exit
+vlan 107
+name "LAN"
+exit
+vlan 116
+name "CARTERA"
+exit
+vlan 118
+name "REVISORIA"
+exit
+vlan 201
+name "IMPRESORAS"
+exit
+vlan 202
+name "CCTV"
+exit
+vlan 203
+name "DATAFONOS"
+exit
+ip telnet server disable
+snmp-server location "BOGOTA_CALLE13_CARTERA"
+hostname "CARTERA"
+slot 1/0 3    ! Dell EMC Networking N1524P
+sntp unicast client enable
+sntp server 132.147.28.157
+stack
+member 1 2    ! N1524P
+exit
+interface vlan 1
+exit
+interface vlan 100
+ip address 172.16.0.3 255.255.255.192
+exit
+ip default-gateway 172.16.0.1
+username "AdmNetwork" password 32dd8547a2980fe3bfd51662907a6d4a privilege 15 encrypted
+aaa authentication login "defaultList" line
+aaa authentication enable "enableList" line
+line console
+password 1e2151c4105c0cff53417340a817521d encrypted
+exit
+line ssh
+password 1e2151c4105c0cff53417340a817521d encrypted
+exit
+ip ssh server
+spanning-tree bpdu-protection
+ip dhcp snooping
+ip dhcp snooping vlan 5,10,102,116,118
+ip device tracking
+!
+interface Gi1/0/1
+storm-control broadcast level 1
+storm-control broadcast action trap
+storm-control multicast level 1
+storm-control multicast action trap
+storm-control unicast level 1
+storm-control unicast action trap
+spanning-tree portfast
+switchport mode general
+switchport general pvid 116
+switchport general allowed vlan add 116
+switchport general allowed vlan add 102 tagged
+switchport general allowed vlan remove 1
+switchport access vlan 102
+keepalive
+exit
+!
+interface Gi1/0/2
+storm-control broadcast level 1
+storm-control broadcast action trap
+storm-control multicast level 1
+storm-control multicast action trap
+storm-control unicast level 1
+storm-control unicast action trap
+spanning-tree portfast
+switchport mode general
+switchport general pvid 116
+switchport general allowed vlan add 116
+switchport general allowed vlan add 102 tagged
+switchport general allowed vlan remove 1
+keepalive
+exit
+!
+interface Gi1/0/3
+storm-control broadcast level 1
+storm-control broadcast action trap
+storm-control multicast level 1
+storm-control multicast action trap
+storm-control unicast level 1
+storm-control unicast action trap
+spanning-tree portfast
+switchport mode general
+switchport general pvid 116
+switchport general allowed vlan add 116
+switchport general allowed vlan add 102 tagged
+switchport general allowed vlan remove 1
+keepalive
+exit
+!
+interface Gi1/0/4
+storm-control broadcast level 1
+storm-control broadcast action trap
+storm-control multicast level 1
+storm-control multicast action trap
+storm-control unicast level 1
+storm-control unicast action trap
+spanning-tree portfast
+switchport mode general
+switchport general pvid 116
+switchport general allowed vlan add 116
+switchport general allowed vlan add 102 tagged
+switchport general allowed vlan remove 1
+keepalive
+exit
+!
+interface Gi1/0/5
+storm-control broadcast level 1
+storm-control broadcast action trap
+storm-control multicast level 1
+storm-control multicast action trap
+storm-control unicast level 1
+storm-control unicast action trap
+spanning-tree portfast
+switchport mode general
+switchport general pvid 116
+switchport general allowed vlan add 116
+switchport general allowed vlan add 102 tagged
+switchport general allowed vlan remove 1
+keepalive
+exit
+!
+interface Gi1/0/6
+storm-control broadcast level 1
+storm-control broadcast action trap
+storm-control multicast level 1
+storm-control multicast action trap
+storm-control unicast level 1
+storm-control unicast action trap
+spanning-tree portfast
+switchport mode general
+switchport general pvid 116
+switchport general allowed vlan add 116
+switchport general allowed vlan add 102 tagged
+switchport general allowed vlan remove 1
+keepalive
+exit
+!
+interface Gi1/0/7
+storm-control broadcast level 1
+storm-control broadcast action trap
+storm-control multicast level 1
+storm-control multicast action trap
+storm-control unicast level 1
+storm-control unicast action trap
+description "TO_IMPRESORA_CDL"
+spanning-tree portfast
+switchport general pvid 116
+switchport general allowed vlan add 116
+switchport general allowed vlan add 102 tagged
+switchport general allowed vlan remove 1
+keepalive
+exit
+!
+interface Gi1/0/8
+storm-control broadcast level 1
+storm-control multicast level 1
+storm-control unicast level 1
+spanning-tree portfast
+switchport general pvid 116
+switchport general allowed vlan add 116
+switchport general allowed vlan add 102 tagged
+switchport general allowed vlan remove 1
+switchport access vlan 116
+power inline never
+keepalive
+exit
+!
+interface Gi1/0/9
+storm-control broadcast level 1
+storm-control broadcast action trap
+storm-control multicast level 1
+storm-control multicast action trap
+storm-control unicast level 1
+storm-control unicast action trap
+spanning-tree portfast
+switchport mode general
+switchport general pvid 116
+switchport general allowed vlan add 116
+switchport general allowed vlan add 102 tagged
+switchport general allowed vlan remove 1
+keepalive
+exit
+!
+interface Gi1/0/10
+speed auto 100
+storm-control broadcast level 1
+storm-control broadcast action trap
+storm-control multicast level 1
+storm-control multicast action trap
+storm-control unicast level 1
+storm-control unicast action trap
+spanning-tree portfast
+switchport mode general
+switchport general pvid 116
+switchport general allowed vlan add 116
+switchport general allowed vlan add 102 tagged
+switchport general allowed vlan remove 1
+switchport access vlan 102
+keepalive
+exit
+!
+interface Gi1/0/11
+storm-control broadcast level 1
+storm-control broadcast action trap
+storm-control multicast level 1
+storm-control multicast action trap
+storm-control unicast level 1
+storm-control unicast action trap
+spanning-tree portfast
+switchport mode general
+switchport general pvid 116
+switchport general allowed vlan add 116
+switchport general allowed vlan add 102 tagged
+switchport general allowed vlan remove 1
+keepalive
+exit
+!
+interface Gi1/0/12
+storm-control broadcast level 1
+storm-control broadcast action trap
+storm-control multicast level 1
+storm-control multicast action trap
+storm-control unicast level 1
+storm-control unicast action trap
+spanning-tree portfast
+switchport mode general
+switchport general pvid 100
+switchport general allowed vlan add 100,116
+switchport general allowed vlan add 5,20,102 tagged
+switchport general allowed vlan remove 1
+keepalive
+exit
+!
+interface Gi1/0/13
+storm-control broadcast level 1
+storm-control broadcast action trap
+storm-control multicast level 1
+storm-control multicast action trap
+storm-control unicast level 1
+storm-control unicast action trap
+spanning-tree portfast
+switchport mode general
+switchport general pvid 116
+switchport general allowed vlan add 116
+switchport general allowed vlan add 102 tagged
+switchport general allowed vlan remove 1
+keepalive
+exit
+!
+interface Gi1/0/14
+storm-control broadcast level 1
+storm-control broadcast action trap
+storm-control multicast level 1
+storm-control multicast action trap
+storm-control unicast level 1
+storm-control unicast action trap
+spanning-tree portfast
+switchport mode general
+switchport general pvid 116
+switchport general allowed vlan add 116
+switchport general allowed vlan add 102 tagged
+switchport general allowed vlan remove 1
+keepalive
+exit
+!
+interface Gi1/0/15
+storm-control broadcast level 1
+storm-control broadcast action trap
+storm-control multicast level 1
+storm-control multicast action trap
+storm-control unicast level 1
+storm-control unicast action trap
+spanning-tree portfast
+switchport mode general
+switchport general pvid 116
+switchport general allowed vlan add 116
+switchport general allowed vlan add 102 tagged
+switchport general allowed vlan remove 1
+keepalive
+exit
+!
+interface Gi1/0/16
+storm-control broadcast level 1
+storm-control broadcast action trap
+storm-control multicast level 1
+storm-control multicast action trap
+storm-control unicast level 1
+storm-control unicast action trap
+spanning-tree portfast
+switchport mode general
+switchport general pvid 116
+switchport general allowed vlan add 116
+switchport general allowed vlan add 102 tagged
+switchport general allowed vlan remove 1
+keepalive
+exit
+!
+interface Gi1/0/17
+storm-control broadcast level 1
+storm-control broadcast action trap
+storm-control multicast level 1
+storm-control multicast action trap
+storm-control unicast level 1
+storm-control unicast action trap
+spanning-tree portfast
+switchport mode general
+switchport general pvid 116
+switchport general allowed vlan add 116
+switchport general allowed vlan add 102 tagged
+switchport general allowed vlan remove 1
+keepalive
+exit
+!
+interface Gi1/0/18
+storm-control broadcast level 1
+storm-control broadcast action trap
+storm-control multicast level 1
+storm-control multicast action trap
+storm-control unicast level 1
+storm-control unicast action trap
+description "AP_presidencia"
+spanning-tree portfast
+switchport mode general
+switchport general pvid 100
+switchport general allowed vlan add 100,116
+switchport general allowed vlan add 5,20,102 tagged
+switchport general allowed vlan remove 1
+keepalive
+exit
+!
+interface Gi1/0/19
+storm-control broadcast level 1
+storm-control broadcast action trap
+storm-control multicast level 1
+storm-control multicast action trap
+storm-control unicast level 1
+storm-control unicast action trap
+spanning-tree portfast
+switchport mode general
+switchport general pvid 116
+switchport general allowed vlan add 116
+switchport general allowed vlan add 102 tagged
+switchport general allowed vlan remove 1
+keepalive
+exit
+!
+interface Gi1/0/20
+storm-control broadcast level 1
+storm-control broadcast action trap
+storm-control multicast level 1
+storm-control multicast action trap
+storm-control unicast level 1
+storm-control unicast action trap
+description "TO_SERVADMIN_TMP1"
+spanning-tree portfast
+switchport access vlan 116
+keepalive
+exit
+!
+interface Gi1/0/21
+description "TO_CARTERA2"
+spanning-tree disable
+switchport mode general
+switchport general allowed vlan add 5,20,100,116 tagged
+keepalive
+exit
+!
+interface Gi1/0/22
+storm-control broadcast level 1
+storm-control broadcast action trap
+storm-control multicast level 1
+storm-control multicast action trap
+storm-control unicast level 1
+storm-control unicast action trap
+description "TO_IMPRESORA"
+spanning-tree portfast
+power inline never
+keepalive
+exit
+!
+interface Gi1/0/23
+storm-control broadcast level 10
+storm-control broadcast action trap
+storm-control multicast level 10
+storm-control multicast action trap
+storm-control unicast level 10
+storm-control unicast action trap
+description "Puesto Sala Presidencia"
+spanning-tree portfast
+switchport general pvid 116
+switchport general allowed vlan add 5
+switchport general allowed vlan add 10,20,105,116 tagged
+switchport general allowed vlan remove 1
+keepalive
+exit
+!
+interface Gi1/0/24
+storm-control broadcast level 10
+storm-control broadcast action trap
+storm-control multicast level 10
+storm-control multicast action trap
+storm-control unicast level 10
+storm-control unicast action trap
+ip dhcp snooping trust
+description "TO_SISTEMAS"
+switchport mode general
+switchport general allowed vlan add 5,10,20,100,102,104-105,116,118 tagged
+exit
+!
+interface Te1/0/1
+shutdown
+exit
+!
+interface Te1/0/2
+shutdown
+exit
+!
+interface Te1/0/3
+shutdown
+exit
+!
+interface Te1/0/4
+shutdown
+exit
+snmp-server engineid local 800002a20320040f2b71f6
+banner login "Toda la informacion que genera, procesa o intercambia la Empresa, es de su propiedad y constituye parte de su activo. Los usuarios deben proteger la informacion a la cual tiene acceso contra el uso indebido, la divulgacion o modificacion por parte de personas no autorizadas, so pena de incurrir en las sanciones que establece la ley. Los servicios informaticos son de uso exclusivo para actividades relacionadas con la Empresa y podran ser monitoreados por esta. ***GRUPO VARDI*** "
+keepalive
+eula-consent support-assist reject
+eula-consent hiveagent reject
+exit

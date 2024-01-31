@@ -9,6 +9,7 @@ Para ejecutar en python se deben incluir las siguientes librerías
 - keyring
 - passlib
 - openpyxl
+- meraki
 
 ******************* USER ENVIRONMENT *******************
 

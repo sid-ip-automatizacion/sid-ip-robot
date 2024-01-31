@@ -1,0 +1,154 @@
+METROMDE-ESTADIO-...#show run
+config-file-header
+METROMDE-ESTADIO-2080595CO
+v3.2.1.1 / RCBS3.2hotfix_950_377_136
+CLI v1.0
+file SSD indicator encrypted
+@
+ssd-control-start
+ssd config
+ssd file passphrase control unrestricted
+no ssd file integrity control
+ssd-control-end cb0a3fdb1f3a1af4e4430033719968c0
+!
+!
+unit-type-control-start
+unit-type unit 1 network gi uplink none
+unit-type-control-end
+!
+vlan database
+vlan 10-50,110-150,210-250
+exit
+voice vlan state auto-triggered
+voice vlan oui-table add 0001e3 Siemens_AG_phone
+voice vlan oui-table add 00036b Cisco_phone
+voice vlan oui-table add 00096e Avaya
+voice vlan oui-table add 000fe2 H3C_Aolynk
+voice vlan oui-table add 0060b9 Philips_and_NEC_AG_phone
+voice vlan oui-table add 00d01e Pingtel_phone
+voice vlan oui-table add 00e075 Polycom/Veritel_phone
+voice vlan oui-table add 00e0bb 3Com_phone
+bonjour interface range vlan 1
+hostname METROMDE-ESTADIO-2080595CO
+encrypted radius-server host 172.18.93.250 key DHEKxyHeif6EBrnD8yte2koTbespxxG9vYu/EhZ9zFI=
+management access-list REMOTE-ACCESS
+permit ip-source 190.242.54.32 mask 255.255.255.240
+permit ip-source 190.242.113.128 mask 255.255.255.240
+permit ip-source 10.188.0.0 mask 255.255.0.0
+permit ip-source 10.187.0.0 mask 255.255.0.0
+permit ip-source 10.213.0.0 mask 255.255.0.0
+permit ip-source 10.215.0.0 mask 255.255.0.0
+permit ip-source 10.216.0.0 mask 255.255.0.0
+permit ip-source 10.218.0.0 mask 255.255.0.0
+permit ip-source 172.18.3.0 mask 255.255.255.0
+permit ip-source 172.18.4.0 mask 255.255.255.0
+permit ip-source 172.18.5.0 mask 255.255.255.0
+permit ip-source 172.18.10.0 mask 255.255.254.0
+permit ip-source 172.18.60.0 mask 255.255.255.0
+permit ip-source 172.18.62.0 mask 255.255.255.0
+permit ip-source 172.18.93.0 mask 255.255.255.0
+permit ip-source 10.215.170.184 mask 255.255.255.248
+permit ip-source 10.255.250.160
+exit
+management access-class REMOTE-ACCESS
+logging host 172.18.93.240
+ip http authentication aaa login-authentication radius local
+aaa authentication login default radius local
+aaa authentication enable default radius enable
+passwords aging 180
+username csc password encrypted $15$bHu9ySTSzyv2zbbV$5TG2yoqkqXdAnDky+0djrehJ/gX+xjmEgl4YG047EftXC6UJAiUKeN0vBHiGmjr2y0zHE5I8WqR4BSUsiT1hGQ== privilege 15
+username sid-ip password encrypted $15$REfqoXVeRqibXo6X$2YUDh3i0EUSOt1BKxyB40LgVUe0x4Vu5nqmDiu8ZK0FI8AYAlihht+btWzyAyuv7p7RfYe/nvFUYT0C0OXytng== privilege 15
+username temporal password encrypted $15$ihR9/EHn56h+/gRP$hHeQrygfFhQwfLtmoC8VEhC1xcoHB/aKPbXBYTXiQCcdUyd5hiiTIyeDoqXiOm2siRZD/p9X5pV4zIFVfaE47A== privilege 15
+ip ssh server
+snmp-server server
+snmp-server community N3TC00L ro 10.215.170.185 mask 255.255.255.255 view Default
+snmp-server community N3TC00L ro 10.215.170.186 mask 255.255.255.255 view Default
+snmp-server community N3TC00L ro 10.215.170.187 mask 255.255.255.255 view Default
+snmp-server community N3TC00L ro 10.255.250.164 mask 255.255.255.255 view Default
+snmp-server community N3TC00L ro 10.255.250.165 mask 255.255.255.255 view Default
+snmp-server community N3TC00L ro 10.255.250.166 mask 255.255.255.255 view Default
+snmp-server community N3TC00L ro 10.255.250.169 mask 255.255.255.255 view Default
+snmp-server community N3TC00L ro 172.18.11.236 mask 255.255.255.255 view Default
+snmp-server community N3TC00L ro 172.18.11.238 mask 255.255.255.255 view Default
+snmp-server community N3TC00L ro 172.18.93.247 mask 255.255.255.255 view Default
+snmp-server host 10.215.170.187 traps version 2c N3TC00L
+snmp-server host 10.255.250.164 traps version 2c N3TC00L
+sntp server 192.168.102.149 poll
+ip telnet server
+!
+interface vlan 128
+ name MGMT-CWC
+ ip address 10.218.129.226 255.255.255.252
+!
+interface GigabitEthernet1
+ description TO-RUCKUS-AP
+ switchport mode trunk
+ switchport trunk native vlan 28
+ switchport trunk allowed vlan 28,228
+ no macro auto smartport
+!
+interface GigabitEthernet2
+ description TO-RUCKUS-AP
+ switchport mode trunk
+ switchport trunk native vlan 28
+ switchport trunk allowed vlan 28,228
+ no macro auto smartport
+!
+interface GigabitEthernet3
+ description TO-RUCKUS-AP
+ switchport mode trunk
+ switchport trunk native vlan 28
+ switchport trunk allowed vlan 28,228
+ no macro auto smartport
+!
+interface GigabitEthernet4
+ description TO-RUCKUS-AP
+ switchport mode trunk
+ switchport trunk native vlan 28
+ switchport trunk allowed vlan 28,228
+ no macro auto smartport
+!
+interface GigabitEthernet5
+ description TO-RUCKUS-AP
+ switchport mode trunk
+ switchport trunk native vlan 28
+ switchport trunk allowed vlan 28,228
+ no macro auto smartport
+!
+interface GigabitEthernet6
+ description TO-RUCKUS-AP
+ switchport mode trunk
+ switchport trunk native vlan 28
+ switchport trunk allowed vlan 28,228
+ no macro auto smartport
+!
+interface GigabitEthernet7
+ description TO-RUCKUS-AP
+ switchport mode trunk
+ switchport trunk native vlan 28
+ switchport trunk allowed vlan 28,228
+ no macro auto smartport
+!
+interface GigabitEthernet8
+ description TO-RUCKUS-AP
+ switchport mode trunk
+ switchport trunk native vlan 28
+ switchport trunk allowed vlan 28,228
+ no macro auto smartport
+!
+interface GigabitEthernet9
+ description TO-EURONA-METRO-NETWORK
+ switchport mode trunk
+ switchport trunk allowed vlan 28,128,228
+ no macro auto smartport
+!
+interface GigabitEthernet10
+ switchport mode trunk
+ switchport trunk allowed vlan 28,128,228
+ no macro auto smartport
+!
+exit
+macro auto controlled
+ip default-gateway 10.218.129.225
+snmp-server set  rlPethPowerPseTable rlPethPowerPseGroupIndex 1 rlPethPowerPsePowerManagementMode portlimit
+METROMDE-ESTADIO-...#

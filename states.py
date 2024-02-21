@@ -251,7 +251,7 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     frm_left.columnconfigure(4, weight=1, minsize=10)
     frm_left.config(bg='white smoke')
 
-    wo_selected = tk.IntVar(0)    # LLeva el registro de la WO seleccionada en la interfaz
+    wo_selected = tk.IntVar(value=0)    # LLeva el registro de la WO seleccionada en la interfaz
 
     list_label_wo = []
 

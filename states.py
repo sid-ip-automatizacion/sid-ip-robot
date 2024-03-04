@@ -12,6 +12,7 @@ class WOselected:
         self.name.trace('w', self.wo_display_label)
         self.name_short = tk.StringVar() # WO name organizado con saltos de linea
         self.change_result = tk.StringVar()  # WO resultado de el cambio
+        self.change_result.set('...')
 
 
     def wo_display_label(self, *args):
@@ -42,7 +43,7 @@ class ComunicaMaximo:
 
     def update_wo(self):
         """
-        Descarga la lista de WO en pending o inprogress y las guarda en el atribito wo_list
+        Descarga la lista de WO en pending o inprogress y las guarda en el atributo wo_list
         """
         # formato para solicitar todas las WO del usuario en estado Workpending y In progress que no sean task
         url_lref_allwo = '{init_url}oslc/os/sidwo?lean=1&oslc.pageSize=60&oslc.select=*&oslc.' \
@@ -100,10 +101,11 @@ class ComunicaMaximo:
 
         req1 = self.session.post(href_post, headers=myheaders, json={"status": my_state})
         print("post op1",req1)
+        info_message = '{}: '.format(worder.id)
         if req1.status_code == 200:
-            info_message = 'New Status applied'
+            info_message = info_message + 'New Status applied'
         else:
-            info_message = 'ERROR changing state'
+            info_message = info_message + 'ERROR changing state'
         if add_log:
             print("create new log")
             print(jedi)
@@ -113,7 +115,7 @@ class ComunicaMaximo:
                 info_message = info_message + ' | New log saved'
             else:
                 info_message = info_message + ' | ERROR creating log'
-        worder.change_result.set(info_message)
+        print(info_message)
 
 
 def show_error():
@@ -134,14 +136,14 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     Funcion principal de la interface con cambio de estado de la WO
     """
     comm = ComunicaMaximo(owner_sccd, user_sccd, pass_sccd, login_url)         # crea instancia para comunicarse con maximo
-    wo_to_change = WOselected()
-
+    wo_selected_list = []
+    message_selected = tk.StringVar()
     def fill_info():
-        patrones_borrar = ["NEW SERVICE", "SIDIP", "NEW PROJECT", "IP", "(SIDIP)", "SID-IP"]
+        patrones_borrar = ["NEW SERVICE", "SIDIP", "NEW PROJECT", "IP", "(SIDIP)", "SID-IP", "NEW SERVICE"]
 
         wo_values = []  # obtiene los woid, wo_description, y wo_status
         for wo_row in range(len(comm.wo_list)):
-            descr_mod = "{}".format(comm.wo_list[wo_row]['description'][0:]).upper().replace('-', ' ')
+            descr_mod = "{}".format(comm.wo_list[wo_row]['description'][0:100]).upper().replace('-', ' ')
             for eliminar in patrones_borrar:
                 descr_mod = descr_mod.replace(eliminar, '')
             wo_values.append({'woid': "{}".format(comm.wo_list[wo_row]['wogroup']),
@@ -149,20 +151,38 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
                               'wo_status': "{}".format(comm.wo_list[wo_row]['status'])})
         return wo_values
 
-    def select_wo():
-        print("cambiarle el estado a:  " + str(wo_selected.get()))
-        wo_to_change.id = comm.wo_values[wo_selected.get()]['woid']
-        wo_to_change.name.set(comm.wo_values[wo_selected.get()]['wo_descr'])
-        wo_to_change.change_result.set('...')
+    def select_wo_list():
+        """
+        Funcion para actulizar la lista de WO actualmente seleccionadas
+        """
+        wo_selected_list.clear()
+        for wo_check_ind in wo_box_list:
+            if wo_check_ind.get() >= 0:
+                wo_checked = WOselected()
+                wo_checked.id = comm.wo_values[wo_check_ind.get()]['woid']
+                wo_checked.name.set(comm.wo_values[wo_check_ind.get()]['wo_descr'])
+                wo_selected_list.append(wo_checked)
+            else:
+                continue
+        print("\nWOs a cambiar: ", end=" ")
+        for wo_in_list in wo_selected_list:
+            print(wo_in_list.id, end=" ")
+        # Create text with the selected WOs
+        mess_current_wos = '{} WO selected\n'.format(len(wo_selected_list))
+        for current_selected_wo in wo_selected_list:
+            mess_current_wos = mess_current_wos + '\u2022' + current_selected_wo.name_short.get() + '\n'
+        message_selected.set(mess_current_wos)
 
     def state_changed(event):
-        msg = "la WO # " + str(wo_selected.get()) + " cambiara su estado a: " + state_cb.get()
-        wo_to_change.change_result.set('...')
-        print(msg)
+        for current_wo in wo_selected_list:
+            msg = "la WO # " + str(current_wo.id) + " cambiara su estado a: " + state_cb.get()
+            print("\n", msg)
+
+    def change_title(event):
+        titleText.delete("1.0", "end")
+        titleText.insert("1.0", selected_title.get())
 
     def handle_click_ce():
-        print("cambiando la wo ", wo_to_change.id)
-        print("cambiando a ", state_cb.get())
         if len(titleText.get("1.0", "end-1c")) == 0:
             ttext = "title_default"
             print(ttext)
@@ -175,18 +195,17 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
         else:
             btext = bodyText.get("1.0", "end-1c")
             print(btext)
-        comm.changer(wo_to_change, state_cb.get(), ttext, btext, wrlog_value.get())
-        handle_click_update(False)
+        for current_wo in wo_selected_list:
+            comm.changer(current_wo, state_cb.get(), ttext, btext, wrlog_value.get())
+        handle_click_update()
 
-    def handle_click_update(deletetext):
+    def handle_click_update():
         print("actualizar todas la wo")
         comm.update_wo()
         comm.wo_values = fill_info()
         draw_wolist()
         draw_title()
-        if deletetext:
-            wo_to_change.change_result.set('...')
-        wo_to_change.name.set(comm.wo_values[wo_selected.get()]['wo_descr'])
+        select_wo_list()
 
     def handle_click_to_workpending():
         print("change all to workpending")
@@ -198,9 +217,8 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
                 print("cambiando la WO {}".format(wo_changing.id))
             else:
                 print("la WO {} ya esta en WORKPENDING".format(comm.wo_list[wo]['wogroup']))
-        wo_to_change.change_result.set('...')
-        wo_to_change.name.set(comm.wo_values[wo_selected.get()]['wo_descr'])
-        handle_click_update(True)
+        select_wo_list()
+        handle_click_update()
 
     def hand_click_order(keyval, rev):
         print("ordenando")
@@ -208,8 +226,7 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
         comm.wo_values = order_list
         draw_wolist()
         draw_title()
-        wo_to_change.name.set(comm.wo_values[wo_selected.get()]['wo_descr'])
-        wo_to_change.change_result.set('...')
+        select_wo_list()
 
     def copy_clipboard(textcp):
         root.clipboard_clear()
@@ -218,7 +235,7 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     def searchChange(event):
 
         cadena = search_text.get("1.0", "end").replace("\n", "").upper()
-        # print(cadena)
+        print(cadena)
         for i in range(len(list_label_wo)):
             if len(cadena) >= 3 and cadena in comm.wo_values[i]['wo_descr'].upper():
                 list_label_wo[i][0].config(bg='yellow')
@@ -244,6 +261,8 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     frm_left.grid(row=1, column=0, sticky="nsew")
     frm_right = tk.Frame(master=root)
     frm_right.grid(row=1, column=1, sticky="new", padx=(3, 0))
+    frm_right.columnconfigure(0, weight=1, minsize=10)
+    frm_right.columnconfigure(1, weight=1, minsize=10)
     frm_left.columnconfigure(0, weight=1, minsize=10)
     frm_left.columnconfigure(1, weight=1, minsize=10)
     frm_left.columnconfigure(2, weight=1, minsize=10)
@@ -252,8 +271,8 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     frm_left.config(bg='white smoke')
 
     wo_selected = tk.IntVar(value=0)    # LLeva el registro de la WO seleccionada en la interfaz
-
     list_label_wo = []
+    wo_box_list = []
 
     def draw_wolist():
         """
@@ -264,16 +283,17 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
         for widgets in frm_left.winfo_children():    # borra lista actual
             widgets.destroy()
         for wo_row in range(len(worders)):    # crea la interfaz con las WO
+            wo_box_list.append(tk.IntVar(value=-1))
             frm_left.rowconfigure(wo_row + 1, weight=1, minsize=1)
             label_wo_id = tk.Label(master=frm_left, text=worders[wo_row]['woid'], bg='white smoke')
             but_cpwo = tk.Button(master=frm_left, text='c', width=1, height=1, bg='white smoke',
                                  command=lambda wo_pass=worders[wo_row]['woid']: copy_clipboard(wo_pass))
             label_wo_desc = tk.Label(master=frm_left, text=worders[wo_row]['wo_descr'], bg='white smoke')
             label_wo_status = tk.Label(master=frm_left, text=worders[wo_row]['wo_status'], bg='white smoke')
-            rad_btn = tk.Radiobutton(master=frm_left, text="# {}".format(wo_row), value=wo_row, command=select_wo,
-                                     bg='white smoke', variable=wo_selected)
-            list_label_wo.append((label_wo_id, but_cpwo, label_wo_desc, label_wo_status, rad_btn))
-            rad_btn.grid(row=wo_row+1, column=0, sticky="nswe")
+            box_btn = tk.Checkbutton(master=frm_left, text="# {}".format(wo_row), variable=wo_box_list[wo_row], onvalue=wo_row,
+                                     offvalue=-1, command=select_wo_list)
+            list_label_wo.append((label_wo_id, but_cpwo, label_wo_desc, label_wo_status, box_btn))
+            box_btn.grid(row=wo_row+1, column=0, sticky="nswe")
             label_wo_id.grid(row=wo_row+1, column=1, sticky="we")
             but_cpwo.grid(row=wo_row+1, column=2, sticky="w")
             label_wo_desc.grid(row=wo_row+1, column=3, sticky="w")
@@ -316,75 +336,101 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
         but_status_down.grid(row=0, column=1)
         but_status_up.grid(row=0, column=2)
 
-
     comm.wo_values = fill_info()
     draw_wolist()
     draw_title()
-    wo_to_change.name.set(comm.wo_values[wo_selected.get()]['wo_descr'])
+    select_wo_list()
 
-
-    frm_right.columnconfigure(0, weight=1, minsize=10)
-    frm_right.rowconfigure(0, weight=1, minsize=10)
-    frm_right.rowconfigure(1, weight=1, minsize=10)
-    frm_right.rowconfigure(2, weight=1, minsize=10)
-    frm_right.rowconfigure(3, weight=1, minsize=10)
-    frm_right.rowconfigure(4, weight=1, minsize=10)
-    frm_right.rowconfigure(5, weight=1, minsize=10)
-    frm_right.rowconfigure(6, weight=1, minsize=10)
-    frm_right.rowconfigure(7, weight=1, minsize=10)
-    frm_right.rowconfigure(8, weight=1, minsize=10)
-    frm_right.rowconfigure(9, weight=1, minsize=10)
-
-    wo_tochange_lbl = tk.Label(master=frm_right, textvariable=wo_to_change.name_short)
-    wo_tochange_lbl.grid(row=0, column=0, columnspan=2)
+    frm_right_up = tk.Frame(master=frm_right)
+    frm_right_up.grid(row=0, column=0, sticky="new")
+    frm_right_up.columnconfigure(0, weight=1, minsize=10)
+    frm_right_up.rowconfigure(0, weight=1, minsize=10)
+    frm_right_up.rowconfigure(1, weight=1, minsize=10)
+    frm_right_up.rowconfigure(2, weight=1, minsize=10)
+    frm_right_up.rowconfigure(3, weight=1, minsize=10)
+    frm_right_up.rowconfigure(4, weight=1, minsize=10)
+    frm_right_up.rowconfigure(5, weight=1, minsize=10)
+    frm_right_up.rowconfigure(6, weight=1, minsize=10)
+    frm_right_up.rowconfigure(7, weight=1, minsize=10)
+    frm_right_up.rowconfigure(8, weight=1, minsize=10)
+    frm_right_down = tk.Frame(master=frm_right)
+    frm_right_down.grid(row=1, column=0, sticky="new")
 
     # search_text
-    searchlabel = tk.Label(master=frm_right, text="Search: ")
-    searchlabel.grid(row=1, column=0, pady=2, sticky=tk.E)
-    search_text = tk.Text(master=frm_right, width=15, height=1)
-    search_text.grid(row=1, column=1, sticky=tk.W, pady=2)
+    searchlabel = tk.Label(master=frm_right_up, text="Search: ")
+    searchlabel.grid(row=0, column=0, pady=2, sticky=tk.E)
+    search_text = tk.Text(master=frm_right_up, width=15, height=1)
+    search_text.grid(row=0, column=1, sticky=tk.W, pady=2)
     search_text.bind('<KeyRelease>', searchChange)
 
     # create a combobox
     states = ('INPRG', 'WORKPENDING')
     selected_state = tk.StringVar()
-    state_cb = ttk.Combobox(master=frm_right, textvariable=selected_state)
+    state_cb = ttk.Combobox(master=frm_right_up, textvariable=selected_state)
     state_cb['values'] = states
     state_cb['state'] = 'readonly'
     state_cb.current(1)
-    state_cb.grid(row=2, column=0, columnspan=2)
+    state_cb.grid(row=1, column=0, columnspan=2)
     state_cb.bind('<<ComboboxSelected>>', state_changed)
 
-    #Create checkbox aplicar logs
+    # Create checkbox aplicar logs
     wrlog_value = tk.BooleanVar()
     wrlog_value.set(True)
-    wrlog_chbutt = ttk.Checkbutton(master=frm_right, text='Create new log', variable=wrlog_value)
-    wrlog_chbutt.grid(row=3, column=0, columnspan=2)
+    wrlog_chbutt = ttk.Checkbutton(master=frm_right_up, text='Create new log', variable=wrlog_value)
+    wrlog_chbutt.grid(row=2, column=0, columnspan=2)
 
-    #Create log title box
-    titlelabel = tk.Label(master=frm_right, text="Title: ")
-    titlelabel.grid(row=4, column=0, sticky=tk.E)
-    titleText = tk.Text(master=frm_right, width=30, height=1)
+    # Create log title box
+    titles = ('---',
+              'Se Asigna Especialista de SID-IP',
+              'Pendiente KO Interno',
+              'Pendiente KO Externo',
+              'Se Realiza KO Interno',
+              'Se Realiza KO Externo',
+              'Se Asigna IP de Gestion',
+              'Se Envia Plantilla',
+              'Se realiza PEM SID-IP y Se Informa al PM.',
+              'Se confirma Operatividad con Cliente',
+              'Se adiciona a Forticloud',
+              'Se Ingresa a Radius',
+              'Se crea Tarea a CSCNET',
+              'Se crea Tarea a CSCMON',
+              'Se Entrega a Soporte',
+              'Se Finaliza Actividades de SID-IP',
+              'Se cambian los Recursos en la PEM.',
+              'PEM empezo despues de lo programado'
+              )
+    selected_title = tk.StringVar()
+    titlelabel = tk.Label(master=frm_right_up, text="Title: ")
+    titlelabel.grid(row=3, column=0, sticky=tk.E)
+    title_cb = ttk.Combobox(master=frm_right_up, textvariable=selected_title)
+    title_cb['values'] = titles
+    title_cb['state'] = 'readonly'
+    title_cb.current(0)
+    title_cb.grid(row=3, column=1, sticky=tk.W)
+    title_cb.bind('<<ComboboxSelected>>', change_title)
+    titleText = tk.Text(master=frm_right_up, width=30, height=1)
     titleText.grid(row=4, column=1, sticky=tk.W)
 
-    #Create log description box
-    bodylabel = tk.Label(master=frm_right, text="Body: ")
+    # Create log description box
+    bodylabel = tk.Label(master=frm_right_up, text="Body: ")
     bodylabel.grid(row=5, column=0, sticky=tk.E)
-    bodyText = tk.Text(master=frm_right, width=30, height=6)
+    bodyText = tk.Text(master=frm_right_up, width=30, height=6)
     bodyText.grid(row=5, column=1, sticky=tk.W)
 
-    but_changestate = tk.Button(master=frm_right, text="Apply Change", width=14, height=2, command=handle_click_ce)  # boton para aplicar cambio de estado
+    but_changestate = tk.Button(master=frm_right_up, text="Apply Change", width=14, height=2, command=handle_click_ce)  # boton para aplicar cambio de estado
     but_changestate.grid(row=6, column=0, columnspan=2)
 
-    wo_to_change.change_result.set('...')
-    change_result_lbl = tk.Label(master=frm_right, textvariable=wo_to_change.change_result)
-    change_result_lbl.grid(row=7, column=0, columnspan=2)
+    but_update = tk.Button(master=frm_right_up, text="Update", width=10, height=2, command=handle_click_update)  # boton para actualizar estados
+    but_update.grid(row=7, column=0, columnspan=2)
 
-    but_update = tk.Button(master=frm_right, text="Update", width=10, height=2, command=lambda dt=True: handle_click_update(dt))  # boton para actualizar estados
-    but_update.grid(row=8, column=0, columnspan=2)
+    but_changeall = tk.Button(master=frm_right_up, text="All Workpending", width=16, height=2, command=handle_click_to_workpending)  # boton para actualizar todas a workpendig
+    but_changeall.grid(row=8, column=0, columnspan=2)
 
-    but_changeall = tk.Button(master=frm_right, text="All Workpending", width=16, height=2, command=handle_click_to_workpending)  # boton para actualizar todas a workpendig
-    but_changeall.grid(row=9, column=0, columnspan=2)
+    frm_right_down.columnconfigure(0, weight=1, minsize=10)
+    frm_right_down.rowconfigure(0, weight=1, minsize=10)
+    # Show list of selected WOs
+    selectedlabel = tk.Label(master=frm_right_down, textvariable=message_selected)
+    selectedlabel.grid(row=0, column=0)
 
     root.mainloop()
 
@@ -395,4 +441,3 @@ if __name__ == "__main__":
     root_win = tk.Tk()
 
     state_change(root_win, user_sccd, user_sccd, pass_sccd, url_sccd)
-

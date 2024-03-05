@@ -181,6 +181,8 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     def change_title(event):
         titleText.delete("1.0", "end")
         titleText.insert("1.0", selected_title.get())
+        bodyText.delete("1.0", "end")
+        bodyText.insert("1.0", selected_title.get())
 
     def handle_click_ce():
         if len(titleText.get("1.0", "end-1c")) == 0:
@@ -428,6 +430,7 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
 
     frm_right_down.columnconfigure(0, weight=1, minsize=10)
     frm_right_down.rowconfigure(0, weight=1, minsize=10)
+
     # Show list of selected WOs
     selectedlabel = tk.Label(master=frm_right_down, textvariable=message_selected)
     selectedlabel.grid(row=0, column=0)

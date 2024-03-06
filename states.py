@@ -153,7 +153,7 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
 
     def select_wo_list():
         """
-        Funcion para actulizar la lista de WO actualmente seleccionadas
+        Funcion para actualizar la lista de WO actualmente seleccionadas
         """
         wo_selected_list.clear()
         for wo_check_ind in wo_box_list:
@@ -173,16 +173,37 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
             mess_current_wos = mess_current_wos + '\u2022' + current_selected_wo.name_short.get() + '\n'
         message_selected.set(mess_current_wos)
 
+    def clear_wo_checkboxes():
+        list_label_wo
+        for list_item in list_label_wo:
+           list_item[4].deselect()
+        select_wo_list()
+
     def state_changed(event):
         for current_wo in wo_selected_list:
             msg = "la WO # " + str(current_wo.id) + " cambiara su estado a: " + state_cb.get()
             print("\n", msg)
 
-    def change_title(event):
+    def select_log(event):
+        log_option_map = {'Especialista asignado': 'Se asigna especialista de SID-IP',
+                          'Pte KOI': 'Pendiente Kick Off Interno',
+                          'Pte KOE': 'Pendiente Kick Off Externo',
+                          'KOI': 'Se realiza Kick Off interno',
+                          'KOE': 'Se realiza Kick Off externo',
+                          'Asignación IP MGT': 'Se asigna IP de gestión',
+                          'Plantilla enviada': 'Plantilla enviada',
+                          'Cambio de recursos': 'Se cambian los recursos durante la PEM',
+                          'PEM demorada': 'PEM empezó después de lo programado',
+                          'PEM realizada': 'Se realiza PEM SID-IP',
+                          'Forticloud': 'Se adiciona equipo a Forticloud',
+                          'Ingresado a Radius': 'Ingresado a Radius',
+                          'Entregado a Soporte': 'Entregado a Soporte',
+                          'Actividades Finalizadas': 'Se finalizan actividades de SID-IP'
+                          }
         titleText.delete("1.0", "end")
-        titleText.insert("1.0", selected_title.get())
+        titleText.insert("1.0", log_option_map.get(selected_title.get(), '-'))
         bodyText.delete("1.0", "end")
-        bodyText.insert("1.0", selected_title.get())
+        bodyText.insert("1.0", log_option_map.get(selected_title.get(), '-'))
 
     def handle_click_ce():
         if len(titleText.get("1.0", "end-1c")) == 0:
@@ -313,6 +334,8 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
         frm_title_des.grid(row=0, column=3)
         frm_title_stat = tk.Frame(master=frm_left)
         frm_title_stat.grid(row=0, column=4)
+        but_unchek_all = tk.Button(master=frm_left, text="X", width=1,height=1, command=clear_wo_checkboxes)
+        but_unchek_all.grid(row=0, column=0, sticky="w")
         but_woid_down = tk.Button(master=frm_title_woid, text="\u2193", width=1, height=1, command=lambda w=woval, k='woid',
                                                                                                      r=False: hand_click_order(k,r))
         but_woid_up = tk.Button(master=frm_title_woid, text="\u2191", width=1, height=1, command=lambda w=woval, k='woid',
@@ -382,34 +405,31 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     wrlog_chbutt.grid(row=2, column=0, columnspan=2)
 
     # Create log title box
-    titles = ('---',
-              'Se Asigna Especialista de SID-IP',
-              'Pendiente KO Interno',
-              'Pendiente KO Externo',
-              'Se Realiza KO Interno',
-              'Se Realiza KO Externo',
-              'Se Asigna IP de Gestion',
-              'Se Envia Plantilla',
-              'Se realiza PEM SID-IP y Se Informa al PM.',
-              'Se confirma Operatividad con Cliente',
-              'Se adiciona a Forticloud',
-              'Se Ingresa a Radius',
-              'Se crea Tarea a CSCNET',
-              'Se crea Tarea a CSCMON',
-              'Se Entrega a Soporte',
-              'Se Finaliza Actividades de SID-IP',
-              'Se cambian los Recursos en la PEM.',
-              'PEM empezo despues de lo programado'
-              )
+    log_options = ('---',
+                   'Especialista asignado',
+                   'Pte KOI',
+                   'Pte KOE',
+                   'KOI',
+                   'KOE',
+                   'Asignación IP MGT',
+                   'Plantilla enviada',
+                   'Cambio de recursos',
+                   'PEM demorada',
+                   'PEM realizada',
+                   'Forticloud',
+                   'Ingresado a Radius',
+                   'Entregado a Soporte',
+                   'Actividades Finalizadas'
+                   )
     selected_title = tk.StringVar()
     titlelabel = tk.Label(master=frm_right_up, text="Title: ")
     titlelabel.grid(row=3, column=0, sticky=tk.E)
     title_cb = ttk.Combobox(master=frm_right_up, textvariable=selected_title)
-    title_cb['values'] = titles
+    title_cb['values'] = log_options
     title_cb['state'] = 'readonly'
     title_cb.current(0)
     title_cb.grid(row=3, column=1, sticky=tk.W)
-    title_cb.bind('<<ComboboxSelected>>', change_title)
+    title_cb.bind('<<ComboboxSelected>>', select_log)
     titleText = tk.Text(master=frm_right_up, width=30, height=1)
     titleText.grid(row=4, column=1, sticky=tk.W)
 
@@ -422,7 +442,7 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     but_changestate = tk.Button(master=frm_right_up, text="Apply Change", width=14, height=2, command=handle_click_ce)  # boton para aplicar cambio de estado
     but_changestate.grid(row=6, column=0, columnspan=2)
 
-    but_update = tk.Button(master=frm_right_up, text="Update", width=10, height=2, command=handle_click_update)  # boton para actualizar estados
+    but_update = tk.Button(master=frm_right_up, text="Update List", width=10, height=2, command=handle_click_update)  # boton para actualizar estados
     but_update.grid(row=7, column=0, columnspan=2)
 
     but_changeall = tk.Button(master=frm_right_up, text="All Workpending", width=16, height=2, command=handle_click_to_workpending)  # boton para actualizar todas a workpendig
@@ -432,7 +452,7 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     frm_right_down.rowconfigure(0, weight=1, minsize=10)
 
     # Show list of selected WOs
-    selectedlabel = tk.Label(master=frm_right_down, textvariable=message_selected)
+    selectedlabel = tk.Label(master=frm_right_down, textvariable=message_selected, fg='red')
     selectedlabel.grid(row=0, column=0)
 
     root.mainloop()

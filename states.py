@@ -229,6 +229,7 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
         draw_wolist()
         draw_title()
         select_wo_list()
+        clear_wo_checkboxes()
 
     def handle_click_to_workpending():
         print("change all to workpending")
@@ -250,6 +251,7 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
         draw_wolist()
         draw_title()
         select_wo_list()
+        clear_wo_checkboxes()
 
     def copy_clipboard(textcp):
         root.clipboard_clear()

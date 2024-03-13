@@ -172,6 +172,10 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
         for current_selected_wo in wo_selected_list:
             mess_current_wos = mess_current_wos + '\u2022' + current_selected_wo.name_short.get() + '\n'
         message_selected.set(mess_current_wos)
+        if len(wo_selected_list) > 1:
+            wos_selected_lb.config(fg='red')
+        else:
+            wos_selected_lb.config(fg='black')
 
     def clear_wo_checkboxes():
         list_label_wo
@@ -200,7 +204,8 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
                           'Entregado a Soporte': 'Entregado a Soporte',
                           'Actividades Finalizadas': 'Se finalizan actividades de SID-IP',
                           'WO sin actividad': 'WO sin actividad',
-                          'Devolución a PM': 'Se devuelve WO a PM'
+                          'Devolución a PM': 'Se devuelve WO a PM',
+                          'Cierre por SLA': 'Cierre por cumplimiento de SLA'
                           }
         titleText.delete("1.0", "end")
         titleText.insert("1.0", log_option_map.get(selected_title.get(), '-'))
@@ -297,7 +302,6 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     frm_left.columnconfigure(4, weight=1, minsize=10)
     frm_left.config(bg='white smoke')
 
-    wo_selected = tk.IntVar(value=0)    # LLeva el registro de la WO seleccionada en la interfaz
     list_label_wo = []
     wo_box_list = []
 
@@ -368,7 +372,6 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     comm.wo_values = fill_info()
     draw_wolist()
     draw_title()
-    select_wo_list()
 
     frm_right_up = tk.Frame(master=frm_right)
     frm_right_up.grid(row=0, column=0, sticky="new")
@@ -410,7 +413,8 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
 
     # Create log title box
     log_options = ('---',
-                   'Especialista asignado',
+                   'WO sin actividad',
+                   'Devolución a PM',
                    'Pte KOI',
                    'Pte KOE',
                    'KOI',
@@ -425,7 +429,9 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
                    'Entregado a Soporte',
                    'Actividades Finalizadas',
                    'WO sin actividad',
-                   'Devolución a PM'
+                   'Devolución a PM',
+                   'Especialista asignado',
+                   'Cierre por SLA'
                    )
     selected_title = tk.StringVar()
     titlelabel = tk.Label(master=frm_right_up, text="Title: ")
@@ -458,8 +464,10 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     frm_right_down.rowconfigure(0, weight=1, minsize=10)
 
     # Show list of selected WOs
-    selectedlabel = tk.Label(master=frm_right_down, textvariable=message_selected, fg='red')
-    selectedlabel.grid(row=0, column=0)
+    wos_selected_lb = tk.Label(master=frm_right_down, textvariable=message_selected, fg='black')
+    wos_selected_lb.grid(row=0, column=0)
+
+    select_wo_list()
 
     root.mainloop()
 

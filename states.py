@@ -198,7 +198,9 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
                           'Forticloud': 'Se adiciona equipo a Forticloud',
                           'Ingresado a Radius': 'Ingresado a Radius',
                           'Entregado a Soporte': 'Entregado a Soporte',
-                          'Actividades Finalizadas': 'Se finalizan actividades de SID-IP'
+                          'Actividades Finalizadas': 'Se finalizan actividades de SID-IP',
+                          'WO sin actividad': 'WO sin actividad',
+                          'Devolución a PM': 'Se devuelve WO a PM'
                           }
         titleText.delete("1.0", "end")
         titleText.insert("1.0", log_option_map.get(selected_title.get(), '-'))
@@ -421,7 +423,9 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
                    'Forticloud',
                    'Ingresado a Radius',
                    'Entregado a Soporte',
-                   'Actividades Finalizadas'
+                   'Actividades Finalizadas',
+                   'WO sin actividad',
+                   'Devolución a PM'
                    )
     selected_title = tk.StringVar()
     titlelabel = tk.Label(master=frm_right_up, text="Title: ")

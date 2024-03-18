@@ -534,6 +534,8 @@ def main_function(root_win, meraki_key_api):
                     ap.serial = ap_operational['serial']
                     ap.ip = ap_operational['ip']
                     ap.site = ap_operational['location']
+                    ap.status = ap_operational['status']
+                    ap.clients = ap_operational['numClients']
                     ap.controller_ip = controller.ip
                     read_operational_aps.append(ap)
                 print("Lee los APs del cliente {}".format(client_id))
@@ -567,6 +569,8 @@ def main_function(root_win, meraki_key_api):
                     ap.serial = ap_operational['serial']
                     ap.ip = ap_operational['ip']
                     ap.site = ap_operational['location']
+                    ap.status = ap_operational['status']
+                    ap.clients = ap_operational['numClients']
                     ap.controller_ip = controller.ip
                     read_operational_aps.append(ap)
                 print("Lee los APs de la controladora")
@@ -577,6 +581,11 @@ def main_function(root_win, meraki_key_api):
         elif vendor == 'meraki':
             meraki_comm = MerakiCommunicator(controller.meraki_api_key)
             devices = meraki_comm.send_request('https://api.meraki.com/api/v1/organizations/{}/devices'.format(client_id))
+            time.sleep(0.21)
+            devices_status = meraki_comm.send_request('https://api.meraki.com/api/v1/organizations/{}/devices/availabilities'.format(client_id))
+            time.sleep(0.21)
+            netowrks = meraki_comm.send_request('https://api.meraki.com/api/v1/organizations/{}/networks'.format(client_id))
+            networks_ids = [net['id'] for net in netowrks]
             mr_pattern = re.compile('^MR\w+', re.IGNORECASE)
             for ap_operational in devices:
                 if mr_pattern.fullmatch(ap_operational['model']) != None:
@@ -592,7 +601,27 @@ def main_function(root_win, meraki_key_api):
                 else:
                     print("El equipo {} no es un modelo MR".format(ap_operational['serial']))
             print("Lee los APs del cliente {}".format(client_id))
+            # Obtiene el listado de clientes de Meraki en todas las network de los últimos 5 minutos y crea una lista con
+            # las repeticiones de seriales de APs
+            client_ap_connected = []
+            for netid in networks_ids:
+                time.sleep(0.21)
+                clients_org = meraki_comm.send_request('https://api.meraki.com/api/v1/networks/{}/clients?timespan=300'
+                                                       .format(netid))
+                client_ap_connected.extend([serial['recentDeviceSerial'] for serial in clients_org])
+                print("Leyendo red {}".format(netid))
+            # Guarda los status y cantidad de clientes de los APs
+            for ap_meraki_partial in read_operational_aps:
+                # Almacena el status del AP
+                for indx, status in enumerate(devices_status):
+                    if ap_meraki_partial.serial == status['serial']:
+                        ap_meraki_partial.status = status['status']
+                        devices_status.pop(indx)
+                        break
+                # Cuenta la cantidad de clientes del AP
+                ap_meraki_partial.clients = client_ap_connected.count(ap_meraki_partial.serial)
         elif vendor == 'fortinet':
+
             if controller.forti_key:
                 url = "https://{fIP}/api/v2/monitor/wifi/managed_ap?" \
                       "vdom=*&access_token={key}".format(fIP=controller.ip, key=controller.forti_key)
@@ -612,6 +641,8 @@ def main_function(root_win, meraki_key_api):
                     ap.mac = main_dic_results[ap_operational]['board_mac']
                     ap.serial = main_dic_results[ap_operational]['serial']
                     ap.ip = main_dic_results[ap_operational]['local_ipv4_addr']
+                    ap.status = main_dic_results[ap_operational]['status']
+                    ap.clients = main_dic_results[ap_operational]['clients']
                     ap.controller_ip = controller.ip
                     read_operational_aps.append(ap)
             else:
@@ -640,8 +671,10 @@ def main_function(root_win, meraki_key_api):
         ap_op_sh['G1'] = "Gateway"
         ap_op_sh['H1'] = "MAC"
         ap_op_sh['I1'] = "Serial"
+        ap_op_sh['J1'] = "Status"
+        ap_op_sh['K1'] = "Clients"
         for ap in operational_aps:
-            ap_op_sh.append([ap.name, ap.model, ap.description, ap.site, ap.ip, '', '', ap.mac, ap.serial])
+            ap_op_sh.append([ap.name, ap.model, ap.description, ap.site, ap.ip, '', '', ap.mac, ap.serial, ap.status, ap.clients])
         print("APs leidos desde la controladora")
         ap_op_sh.title = 'APinfo'
         ap_op_wb.save(new_file)

@@ -125,8 +125,8 @@ def main_function(root_win, meraki_key_api):
                 new_ap = AccessPoint(vendor)
                 new_ap.name = ap_row[0].value.strip()
                 new_ap.description = ap_row[2].value.strip()
-                new_ap.mac = ap_row[7].value.upper().strip().replace('-',':')
-                new_ap.serial = ap_row[8].value.upper().strip()
+                new_ap.mac = ap_row[5].value.upper().strip().replace('-',':')
+                new_ap.serial = ap_row[6].value.upper().strip()
                 new_ap.site = ap_row[3].value.upper().strip()
                 if vendor == 'ruckus_vsz' or vendor == 'ruckus_sz_onsite':
                     new_ap.controller_ip = controller.ip
@@ -396,34 +396,34 @@ def main_function(root_win, meraki_key_api):
             # Revisa todas las lineas del archivo de excel
             for ap_row in ap_sh.iter_rows(min_row=2):
                 # Se tiene la MAC pero no el Serial
-                if ap_row[7].value != None and ap_row[8].value == None:
-                    ap_mac_excel = ap_row[7].value.upper().strip().replace('-', ':')
+                if ap_row[5].value != None and ap_row[6].value == None:
+                    ap_mac_excel = ap_row[5].value.upper().strip().replace('-', ':')
                     # Busca un ap de la lista por MAC y copia su serial en excel
                     mac_found = False
                     for ap in aps_client:
                         if ap.mac.upper() == ap_mac_excel:
-                            ap_row[8].value = ap.serial
+                            ap_row[6].value = ap.serial
                             mac_found = True
                             break
                     if not mac_found:
                         print("El AP con MAC address {} no se encontró en el cliente".format(ap_mac_excel))
                 # Se tiene el Serial pero no la MAC
-                elif ap_row[7].value == None and ap_row[8].value != None:
-                    ap_serial_excel = ap_row[8].value.upper().strip()
+                elif ap_row[5].value == None and ap_row[6].value != None:
+                    ap_serial_excel = ap_row[6].value.upper().strip()
                     # Busca un ap de la lista por Serial, y copia su MAC en excel
                     serial_found = False
                     for ap in aps_client:
                         if ap.serial.upper() == ap_serial_excel:
-                            ap_row[7].value = ap.mac
+                            ap_row[5].value = ap.mac
                             serial_found = True
                             break
                     if not serial_found:
                         print("El AP con Serial {} no se encontró en el cliente".format(ap_serial_excel))
                 # Se tiene serial y MAC
-                elif ap_row[7].value != None and ap_row[8].value != None:
+                elif ap_row[5].value != None and ap_row[6].value != None:
                     print("El equipo {} está completo".format(ap_row[0].value))
                 # No se tiene serial ni MAC
-                elif ap_row[7].value == None and ap_row[8].value == None and ap_row[0].value != None:
+                elif ap_row[5].value == None and ap_row[6].value == None and ap_row[0].value != None:
                     print("El equipo {} no tiene MAC ni serial. Se debe tener MAC o serial de todos los equipos".format(ap_row[0].value))
                 else:
                     print("Equipo {} no requiere completarse".format(ap_row[0].value))
@@ -474,8 +474,8 @@ def main_function(root_win, meraki_key_api):
                     print("Fila {}: ERROR en IP".format(count))
             else:
                 print("Fila {}: IP address vacio".format(count))
-            if ap_row[7].value != None:
-                if mac_pattern.fullmatch(ap_row[7].value) != None:
+            if ap_row[5].value != None:
+                if mac_pattern.fullmatch(ap_row[5].value) != None:
                     format_valid = True
                     print("Fila {}: MAC sin errores".format(count))
                 else:
@@ -483,8 +483,8 @@ def main_function(root_win, meraki_key_api):
                     print("Fila {}: ERROR en MAC".format(count))
             else:
                 print("Fila {}: MAC vacio".format(count))
-            if ap_row[8].value != None:
-                if serial_pattern.fullmatch(ap_row[8].value) != None:
+            if ap_row[6].value != None:
+                if serial_pattern.fullmatch(ap_row[6].value) != None:
                     format_valid = True
                     print("Fila {}: Serial sin errores".format(count))
                 else:
@@ -667,14 +667,12 @@ def main_function(root_win, meraki_key_api):
         ap_op_sh['C1'] = "Description/Location"
         ap_op_sh['D1'] = "Site"
         ap_op_sh['E1'] = "IP Address"
-        ap_op_sh['F1'] = "Netmask"
-        ap_op_sh['G1'] = "Gateway"
-        ap_op_sh['H1'] = "MAC"
-        ap_op_sh['I1'] = "Serial"
-        ap_op_sh['J1'] = "Status"
-        ap_op_sh['K1'] = "Clients"
+        ap_op_sh['F1'] = "MAC"
+        ap_op_sh['G1'] = "Serial"
+        ap_op_sh['H1'] = "Status"
+        ap_op_sh['I1'] = "Clients"
         for ap in operational_aps:
-            ap_op_sh.append([ap.name, ap.model, ap.description, ap.site, ap.ip, '', '', ap.mac, ap.serial, ap.status, ap.clients])
+            ap_op_sh.append([ap.name, ap.model, ap.description, ap.site, ap.ip, ap.mac, ap.serial, ap.status, ap.clients])
         print("APs leidos desde la controladora")
         ap_op_sh.title = 'APinfo'
         ap_op_wb.save(new_file)

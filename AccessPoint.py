@@ -11,6 +11,8 @@ class AccessPoint():
         self.ip = ''
         self.controller_ip = ''
         self.site = ''
+        self.status = ''
+        self.clients = 0
 
     def config_infoap_meraki(self, api_key):
         """

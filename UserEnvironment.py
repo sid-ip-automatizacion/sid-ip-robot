@@ -33,8 +33,9 @@ class UserEnvironment:
         Carga la ventana de cambios de estado
         """
         self.clear_work_area()  # Limpia el area de trabajo
-        states.state_change(self.get_work_area(), self.get_user_sccd(), self.get_user_sccd(), self.get_pass_sccd(),
+        states.state_change(self.get_work_area(), self.get_owner_sccd(), self.get_user_sccd(), self.get_pass_sccd(),
                             self.get_urlsccd())  # Ejecuta el cambio de estado en el ambiente del usuario
+        
 
     def run_new_owner(self):
         """

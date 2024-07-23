@@ -1,6 +1,13 @@
 import requests
 import tkinter as tk
 from tkinter import ttk
+import time
+import threading
+from playsound import playsound
+
+import timekeeper
+
+stop_check_time = False
 
 class WOselected:
     """
@@ -131,6 +138,8 @@ def show_error():
     ok_button.pack()
     error_win.mainloop()
 
+
+
 def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     """
     Funcion principal de la interface con cambio de estado de la WO
@@ -189,28 +198,46 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
             print("\n", msg)
 
     def select_log(event):
-        log_option_map = {'Especialista asignado': 'Se asigna especialista de SID-IP',
-                          'Pte KOI': 'Pendiente Kick Off Interno',
-                          'Pte KOE': 'Pendiente Kick Off Externo',
-                          'KOI': 'Se realiza Kick Off interno',
-                          'KOE': 'Se realiza Kick Off externo',
-                          'Asignación IP MGT': 'Se asigna IP de gestión',
-                          'Plantilla enviada': 'Plantilla enviada',
-                          'Cambio de recursos': 'Se cambian los recursos durante la PEM',
-                          'PEM demorada': 'PEM empezó después de lo programado',
-                          'PEM realizada': 'Se realiza PEM SID-IP',
-                          'Forticloud': 'Se adiciona equipo a Forticloud',
-                          'Ingresado a Radius': 'Ingresado a Radius',
-                          'Entregado a Soporte': 'Entregado a Soporte',
-                          'Actividades Finalizadas': 'Se finalizan actividades de SID-IP',
-                          'WO sin actividad': 'WO sin actividad',
-                          'Devolución a PM': 'Se devuelve WO a PM',
-                          'Cierre por SLA': 'Cierre por cumplimiento de SLA'
+        log_option_map = {'REVISION PRELIMINAR DEL PROYECTO': 'P00. REVISION PRELIMINAR DEL PROYECTO',
+                          'KO INTERNO (KOI)': 'P01. KO INTERNO (KOI)',
+                          'KO EXTERNO (KOE)': 'P02. KO EXTERNO (KOE)',
+                          'PLANTILLA ALISTAMIENTO': 'P03. PLANTILLA ALISTAMIENTO',
+                          'PEM (EJECUCION)': 'P04. PEM (EJECUCION)',
+                          'DOCUMENTACION (PREPARACION)': 'P05. DOCUMENTACION (PREPARACION)',
+                          'REUNION SEGUIMIENTO - INTERNA': 'P06. REUNION SEGUIMIENTO - INTERNA',
+                          'REUNION SEGUIMIENTO - CLIENTE': 'P07. REUNION SEGUIMIENTO - CLIENTE',
+                          'CSC (CREACION TAREA)': 'P08. CSC (CREACION TAREA)',
+                          'ESPECIALISTA ASIGNADO': 'N01. ESPECIALISTA ASIGNADO',
+                          'PLANTILLA ENVIADA': 'N02. PLANTILLA ENVIADA',
+                          'ACTIVIDADES FINALIZADAS': 'N03. ACTIVIDADES FINALIZADAS',
+                          'CSC (ENTREGA ACEPTADA)': 'N04. CSC (ENTREGA ACEPTADA)',
+                          'WO SIN ACTIVIDAD': 'N05. WO SIN ACTIVIDAD',
+                          'WO CANCELADA': 'N06. WO CANCELADA',
+                          'KOI PENDIENTE': 'N07. KOI PENDIENTE',
+                          'KOE PENDIENTE': 'N08. KOE PENDIENTE',
+                          'RECURSOS PENDIENTES': 'N09. RECURSOS PENDIENTES',
+                          'RECURSOS CAMBIADOS': 'N10. RECURSOS CAMBIADOS',
+                          'PEM DEMORADA': 'N11. PEM DEMORADA',
+                          'PEM COMPLETA': 'N12. PEM COMPLETA',
+                          'EN MONITOREO': 'N13. EN MONITOREO',
+                          'FORTICLOUD AGREGADO': 'N14. FORTICLOUD AGREGADO',
+                          'RADIUS AGREGADO': 'N15. RADIUS AGREGADO',
+                          'ESCALAMIENTO A TERCERO': 'N16. ESCALAMIENTO A TERCERO',
+                          'DEVOLUCION PM x INACTIVIDAD': 'N17. DEVOLUCION PM x INACTIVIDAD',
+                          'ENTREGA PARCIAL': 'N18. ENTREGA PARCIAL',
+                          'CIERRE WO POR SLA': 'N19. CIERRE WO POR SLA',
+                          'INICIO DE VENTANA MTO': 'N20. INICIO DE VENTANA MTO',
+                          'FINAL DE VENTANA MTO': 'N21. FINAL DE VENTANA MTO',
+                          'SE AÑADEN LICENCIAS': 'N22. SE AÑADEN LICENCIAS',
+                          'NOTA/COMENTARIO': 'N23. NOTA/COMENTARIO'
                           }
         titleText.delete("1.0", "end")
         titleText.insert("1.0", log_option_map.get(selected_title.get(), '-'))
         bodyText.delete("1.0", "end")
         bodyText.insert("1.0", log_option_map.get(selected_title.get(), '-'))
+
+    ## Anuncio de error digitando el tiempo
+
 
     def handle_click_ce():
         if len(titleText.get("1.0", "end-1c")) == 0:
@@ -226,8 +253,29 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
             btext = bodyText.get("1.0", "end-1c")
             print(btext)
         for current_wo in wo_selected_list:
-            comm.changer(current_wo, state_cb.get(), ttext, btext, wrlog_value.get())
+            
+            ##TIME-CODE##
+            
+            if state_cb.get() == 'INPRG' and settime_value.get() == True :
+                print("horas: ", int(hour_entry.get("1.0", "end-1c")), type(int(hour_entry.get("1.0", "end-1c"))))
+                print("minutos: ",int(min_entry.get("1.0", "end-1c")),type(int(min_entry.get("1.0", "end-1c"))))
+
+                if 0 <= int(hour_entry.get("1.0", "end-1c")) <= 8 and 0 <= int(min_entry.get("1.0", "end-1c")) <= 60:
+
+                    if int(hour_entry.get("1.0", "end-1c"))== 0 and int(min_entry.get("1.0", "end-1c")) == 0:
+                        tk.messagebox.showinfo("TIME ERROR", "No time to count.")
+                    else:
+                        comm.changer(current_wo, state_cb.get(), ttext, btext, wrlog_value.get())
+                        counters[current_wo.id].count(int(hour_entry.get("1.0", "end-1c")),int(min_entry.get("1.0", "end-1c")))
+                else:
+                    tk.messagebox.showinfo("TIME ERROR", "The minutes has to be a numeric value between 0 and 60. The hours has to be a numeric value between 0 and 8.")
+            else:
+                comm.changer(current_wo, state_cb.get(), ttext, btext, wrlog_value.get())
+            
         handle_click_update()
+
+
+
 
     def handle_click_update():
         print("actualizar todas la wo")
@@ -245,6 +293,7 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
                 wo_changing = WOselected()
                 wo_changing.id = comm.wo_values[wo]['woid']
                 comm.changer(wo_changing, 'WORKPENDING', '', '', False)
+                WO_finish_flag[wo_changing.id]=True
                 print("cambiando la WO {}".format(wo_changing.id))
             else:
                 print("la WO {} ya esta en WORKPENDING".format(comm.wo_list[wo]['wogroup']))
@@ -300,10 +349,38 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     frm_left.columnconfigure(2, weight=1, minsize=10)
     frm_left.columnconfigure(3, weight=1, minsize=10)
     frm_left.columnconfigure(4, weight=1, minsize=10)
+    ##TIME-CODE##
+    frm_left.columnconfigure(5, weight=1, minsize=10)
+
     frm_left.config(bg='white smoke')
 
-    list_label_wo = []
-    wo_box_list = []
+
+    ##TIME-CODE##
+
+
+
+
+    comm.update_wo()
+    comm.wo_values = fill_info()
+    worders_list = comm.wo_values
+    WO_list=[]
+    WO_finish_flag={}
+    for WO_dic in worders_list:
+        WO_list.append(WO_dic['woid'])
+        WO_finish_flag[WO_dic['woid']]=False
+
+    counters=timekeeper.generate(WO_list)
+
+
+
+
+
+    print('WO a trabajar')
+    print(counters)
+
+    list_label_wo = [] #Lista de tuplas que contienen los label que irán en cada fila DE WOs
+    wo_box_list = [] # Array de IntVar para los valores onvalue/offvalue en forma de tk.IntVar() para el Checkbutton de cada WO
+    list_wo_to_change={}
 
     def draw_wolist():
         """
@@ -323,12 +400,24 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
             label_wo_status = tk.Label(master=frm_left, text=worders[wo_row]['wo_status'], bg='white smoke')
             box_btn = tk.Checkbutton(master=frm_left, text="# {}".format(wo_row), variable=wo_box_list[wo_row], onvalue=wo_row,
                                      offvalue=-1, command=select_wo_list)
-            list_label_wo.append((label_wo_id, but_cpwo, label_wo_desc, label_wo_status, box_btn))
+            ##TIME-CODE##
+            time_left=counters[worders[wo_row]['woid']].tk_time
+
+            wo_finish=WOselected() 
+            wo_finish.id=worders[wo_row]['woid']
+            list_wo_to_change[worders[wo_row]['woid']]=wo_finish
+
+            label_time = tk.Label(master=frm_left, text="00:00:00", textvariable=time_left, bg='white smoke') #Label que mostrará el tiempo, por defecto tendrá un valor de 00:00:00.
+            list_label_wo.append((label_wo_id, but_cpwo, label_wo_desc, label_wo_status, box_btn,label_time))
+
             box_btn.grid(row=wo_row+1, column=0, sticky="nswe")
             label_wo_id.grid(row=wo_row+1, column=1, sticky="we")
             but_cpwo.grid(row=wo_row+1, column=2, sticky="w")
             label_wo_desc.grid(row=wo_row+1, column=3, sticky="w")
             label_wo_status.grid(row=wo_row+1, column=4)
+
+            ##TIME-CODE##
+            label_time.grid(row=wo_row+1, column=5)
 
     def draw_title():
         """
@@ -342,6 +431,11 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
         frm_title_des.grid(row=0, column=3)
         frm_title_stat = tk.Frame(master=frm_left)
         frm_title_stat.grid(row=0, column=4)
+
+        ##TIME-CODE##
+        frm_tittle_time= tk.Frame(master=frm_left) ## título time
+        frm_tittle_time.grid(row=0, column=5)
+
         but_unchek_all = tk.Button(master=frm_left, text="X", width=1,height=1, command=clear_wo_checkboxes)
         but_unchek_all.grid(row=0, column=0, sticky="w")
         but_woid_down = tk.Button(master=frm_title_woid, text="\u2193", width=1, height=1, command=lambda w=woval, k='woid',
@@ -359,6 +453,10 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
         woid_title = tk.Label(master=frm_title_woid, text='WO ID', bg='white smoke')
         wodes_title = tk.Label(master=frm_title_des, text='Description', bg='white smoke')
         wostat_title = tk.Label(master=frm_title_stat, text='Status', bg='white smoke')
+
+        ##TIME-CODE##
+        time_title = tk.Label(master=frm_tittle_time, text='Time', bg='white smoke') # Título time para los tiempos INPROG
+
         woid_title.grid(row=0, column=0, sticky="we")
         but_woid_down.grid(row=0, column=1)
         but_woid_up.grid(row=0, column=2)
@@ -369,9 +467,70 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
         but_status_down.grid(row=0, column=1)
         but_status_up.grid(row=0, column=2)
 
+        ##TIME-CODE##
+        time_title.grid(row=0, column=0)
+
+        
+
+
+
     comm.wo_values = fill_info()
     draw_wolist()
     draw_title()
+
+
+
+
+    
+    ##Función que añade el log al terminar el contador y cambia la WO a workpending
+
+    def counter_finish(wo_finished):
+        ttext = "Finished/Finalizado"
+        btext = "Finished/Finalizado"
+        playsound("alarm.mp3")
+        tk.messagebox.showinfo("WO TO WORKPENDING", "The activity time has finished. Please, documentate the WO or set more INPRG time")
+        comm.changer(wo_finished, 'WORKPENDING', ttext, btext, True)
+        print("La WO pasó a workpending")
+
+    ##Función que revisa cada segundo el valor de los contadores de cada WO y ejecuta la finalización "counter_finish()" una vez el contador llegue a 1
+
+    def check_time():
+        while stop_check_time == False: 
+            print("Time check")
+            for wo, counter in counters.items():   
+                print('La WO ', wo, 'Le quedan ', counter.secs_rest, ' Segundos' )
+                if counter.secs_rest == 1 or WO_finish_flag[wo]==True:
+                    counter.finish()
+                    counter_finish(list_wo_to_change[wo])
+                    handle_click_update()
+                    counter.finish()
+                    WO_finish_flag[wo]=False
+                else:
+                    continue          
+            time.sleep(1)
+
+    
+
+
+
+    # Crear el hilo
+    check_time_thread = threading.Thread(target=check_time)
+
+    
+
+    # Iniciar el hilo
+    check_time_thread.start()
+ 
+
+
+
+
+
+
+
+
+
+
 
     frm_right_up = tk.Frame(master=frm_right)
     frm_right_up.grid(row=0, column=0, sticky="new")
@@ -385,6 +544,12 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     frm_right_up.rowconfigure(6, weight=1, minsize=10)
     frm_right_up.rowconfigure(7, weight=1, minsize=10)
     frm_right_up.rowconfigure(8, weight=1, minsize=10)
+
+    ##TIME-CODE##
+    frm_right_up.rowconfigure(9, weight=1, minsize=10) #new checkbox para aplicar contador
+    frm_right_up.rowconfigure(10, weight=1, minsize=10) #new entry minutes
+    frm_right_up.rowconfigure(11, weight=1, minsize=10) #new entry hours
+
     frm_right_down = tk.Frame(master=frm_right)
     frm_right_down.grid(row=1, column=0, sticky="new")
 
@@ -398,12 +563,19 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     # create a combobox
     states = ('INPRG', 'WORKPENDING')
     selected_state = tk.StringVar()
-    state_cb = ttk.Combobox(master=frm_right_up, textvariable=selected_state)
+    state_cb = ttk.Combobox(master=frm_right_up, textvariable=selected_state) #IWORKING
     state_cb['values'] = states
     state_cb['state'] = 'readonly'
     state_cb.current(1)
     state_cb.grid(row=1, column=0, columnspan=2)
     state_cb.bind('<<ComboboxSelected>>', state_changed)
+
+
+
+
+        
+
+
 
     # Create checkbox aplicar logs
     wrlog_value = tk.BooleanVar()
@@ -413,30 +585,43 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
 
     # Create log title box
     log_options = ('---',
-                   'WO sin actividad',
-                   'Devolución a PM',
-                   'Pte KOI',
-                   'Pte KOE',
-                   'KOI',
-                   'KOE',
-                   'Asignación IP MGT',
-                   'Plantilla enviada',
-                   'Cambio de recursos',
-                   'PEM demorada',
-                   'PEM realizada',
-                   'Forticloud',
-                   'Ingresado a Radius',
-                   'Entregado a Soporte',
-                   'Actividades Finalizadas',
-                   'WO sin actividad',
-                   'Devolución a PM',
-                   'Especialista asignado',
-                   'Cierre por SLA'
+                   'REVISION PRELIMINAR DEL PROYECTO',
+                   'KO INTERNO (KOI)',
+                   'KO EXTERNO (KOE)',
+                   'PLANTILLA ALISTAMIENTO',
+                   'PEM (EJECUCION)',
+                   'DOCUMENTACION (PREPARACION)',
+                   'REUNION SEGUIMIENTO - INTERNA',
+                   'REUNION SEGUIMIENTO - CLIENTE',
+                   'CSC (CREACION TAREA)',
+                   'ESPECIALISTA ASIGNADO',
+                   'PLANTILLA ENVIADA',
+                   'ACTIVIDADES FINALIZADAS',
+                   'CSC (ENTREGA ACEPTADA)',
+                   'WO SIN ACTIVIDAD',
+                   'WO CANCELADA',
+                   'KOI PENDIENTE',
+                   'KOE PENDIENTE',
+                   'RECURSOS PENDIENTES',
+                   'RECURSOS CAMBIADOS',
+                   'PEM DEMORADA',
+                   'PEM COMPLETA',
+                   'EN MONITOREO',
+                   'FORTICLOUD AGREGADO',
+                   'RADIUS AGREGADO',
+                   'ESCALAMIENTO A TERCERO',
+                   'DEVOLUCION PM x INACTIVIDAD',
+                   'ENTREGA PARCIAL',
+                   'CIERRE WO POR SLA',
+                   'INICIO DE VENTANA MTO',
+                   'FINAL DE VENTANA MTO',
+                   'SE AÑADEN LICENCIAS',
+                   'NOTA/COMENTARIO'
                    )
     selected_title = tk.StringVar()
     titlelabel = tk.Label(master=frm_right_up, text="Title: ")
     titlelabel.grid(row=3, column=0, sticky=tk.E)
-    title_cb = ttk.Combobox(master=frm_right_up, textvariable=selected_title)
+    title_cb = ttk.Combobox(master=frm_right_up, textvariable=selected_title, width=40)
     title_cb['values'] = log_options
     title_cb['state'] = 'readonly'
     title_cb.current(0)
@@ -459,6 +644,28 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
 
     but_changeall = tk.Button(master=frm_right_up, text="All Workpending", width=16, height=2, command=handle_click_to_workpending)  # boton para actualizar todas a workpendig
     but_changeall.grid(row=8, column=0, columnspan=2)
+
+
+
+     ##TIME-CODE##
+    ### Define timer ###
+
+    settime_value = tk.BooleanVar()
+    settime_value.set(False)
+    settime_chbutt = ttk.Checkbutton(master=frm_right_up, text='Set time in "INPRG', variable=settime_value)
+    
+
+    hourlabel = tk.Label(master=frm_right_up, text="Enter hours: ")
+    hour_entry = tk.Text(master=frm_right_up, width=5, height=1)
+    minlabel = tk.Label(master=frm_right_up, text="Enter minutes: ")
+    min_entry = tk.Text(master=frm_right_up, width=5, height=1)
+
+    settime_chbutt.grid(row=9, column=0, columnspan=2)
+    hourlabel.grid(row=10, column=0, sticky=tk.E)
+    hour_entry.grid(row=10, column=1, sticky=tk.W)
+    minlabel.grid(row=11, column=0, sticky=tk.E)
+    min_entry.grid(row=11, column=1, sticky=tk.W)
+
 
     frm_right_down.columnconfigure(0, weight=1, minsize=10)
     frm_right_down.rowconfigure(0, weight=1, minsize=10)

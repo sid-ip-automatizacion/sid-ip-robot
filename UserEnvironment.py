@@ -89,8 +89,9 @@ class UserEnvironment:
         Crea la ventana GUI donde se ejecutara el programa
         """
         self.__root = tkinter.Tk()  # Ventana principal
-        self.__root.geometry("1100x600")
+        self.__root.geometry("1250x600")
         self.__root.title('SID IP robot')
+        self.__root.iconbitmap('incon.ico')
         # La siguiente seccion define un area de trabajo donde se ubicaran las ventanas de otras funciones
         def frame_configure(event):
             self.__my_canvas.config(width=event.width, height=event.height)
@@ -238,6 +239,7 @@ class UserEnvironment:
         auth_win = tkinter.Tk()
         auth_win.title('SID-IP robot')
         auth_win.geometry("300x200")
+        auth_win.iconbitmap('incon.ico')
         auth_msg = tkinter.Label(auth_win, text="Enter password")
         auth_msg.pack(pady=20)
         ent_password = tkinter.Entry(auth_win, show="*", width=20)
@@ -358,11 +360,13 @@ class UserEnvironment:
         Muestra la ventana Acerca de"
         """
         about_win = tkinter.Tk()
-        about_text = tkinter.Label(about_win, text='version: 4.1'
+        about_text = tkinter.Label(about_win, text='version: 4.3'
                                                    '\nSID-IP release'
-                                                  '\n\nDesarrollado por SID-IP Team, Cable & Wireless'
+                                                  '\n\nDesarrollado por SID-IP Team, Liberty Networks'
                                                   '\nEquipo de desarrollo:'
                                                   '\nAlvaro Molano, Cesar Castillo, Jose Cabezas, Nicole Paz, Ricardo Gamboa, '
-                                                   'William Galindo, Ruben Vanegas')
+                                                  '\nWilliam Galindo, Ruben Vanegas, Luis Solís',)
         about_text.grid(row=0, column=0)
+        about_win.title('About:')
+        about_win.iconbitmap('incon.ico')
         about_win.mainloop()

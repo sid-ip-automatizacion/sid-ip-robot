@@ -149,7 +149,9 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     wo_selected_list = []
     message_selected = tk.StringVar()
     def fill_info():
-        patrones_borrar = ["NEW SERVICE", "SIDIP", "NEW PROJECT", "IP", "SID", "(SIDIP)", "SID-IP", "NEW SERVICE", "WIFI", "WI-FI", "MIGRATION", "MIGRACION", "DEAL", "SOLUCION", "SOLUTION", "SDWAN", "SD-WAN", "ROUTER", "SWITCH","ACCESS POINT", "AP"]
+        patrones_borrar = ["NEW SERVICE", "SIDIP", "NEW PROJECT", "IP", "SID", "(SIDIP)", "SID-IP", "NEW SERVICE", "WIFI", "WI-FI", "MIGRATION", "MIGRACION",
+                            "DEAL", "SOLUCION", "SOLUTION", "SDWAN", "SD-WAN", "ROUTER", "SWITCH","ACCESS POINT", "AP", "APS", "AP'S", "COLOMBIA", "HONDURAS", 
+                            "GUATEMALA", "SALVADOR", "TRINIDAD", "JAMAICA", "REPUBLICA DOMINICANA", "BARBADOS", "CURAZAO"]
 
         wo_values = []  # obtiene los woid, wo_description, y wo_status
         for wo_row in range(len(comm.wo_list)):
@@ -239,6 +241,13 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
                     tk.messagebox.showinfo("TIME ERROR", "The minutes has to be a numeric value between 0 and 60. The hours has to be a numeric value between 0 and 8.")
             else:
                 comm.changer(current_wo, state_cb.get(), ttext, btext, wrlog_value.get())
+                counters[current_wo.id].finish()
+                announce_m_finish_thread = threading.Thread(target=announce_finish_short_message)
+                announce_s_finish_thread = threading.Thread(target=announce_finish_sound)
+                announce_m_finish_thread.start()
+                announce_s_finish_thread.start()
+                WO_finish_flag[current_wo.id]=False
+
             
         handle_click_update()
 
@@ -447,6 +456,8 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     draw_title()
 
     ## Función lanza ventana y alarma de finalización
+    def announce_finish_short_message():
+        tk.messagebox.showinfo("WO TO WORKPENDING" "The activity time has ended before the counter expires")
     def announce_finish_message():
         tk.messagebox.showinfo("WO TO WORKPENDING", "The activity time has finished. Please, documentate the WO or set additional INPRG time")
     def announce_finish_sound():

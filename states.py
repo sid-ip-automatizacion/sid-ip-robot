@@ -5,6 +5,7 @@ import time
 import threading
 from playsound import playsound
 
+
 import timekeeper
 
 stop_check_time = False
@@ -148,7 +149,7 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     wo_selected_list = []
     message_selected = tk.StringVar()
     def fill_info():
-        patrones_borrar = ["NEW SERVICE", "SIDIP", "NEW PROJECT", "IP", "(SIDIP)", "SID-IP", "NEW SERVICE"]
+        patrones_borrar = ["NEW SERVICE", "SIDIP", "NEW PROJECT", "IP", "SID", "(SIDIP)", "SID-IP", "NEW SERVICE", "WIFI", "WI-FI", "MIGRATION", "MIGRACION", "DEAL", "SOLUCION", "SOLUTION", "SDWAN", "SD-WAN", "ROUTER", "SWITCH","ACCESS POINT", "AP"]
 
         wo_values = []  # obtiene los woid, wo_description, y wo_status
         for wo_row in range(len(comm.wo_list)):
@@ -198,43 +199,10 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
             print("\n", msg)
 
     def select_log(event):
-        log_option_map = {'REVISION PRELIMINAR DEL PROYECTO': 'P00. REVISION PRELIMINAR DEL PROYECTO',
-                          'KO INTERNO (KOI)': 'P01. KO INTERNO (KOI)',
-                          'KO EXTERNO (KOE)': 'P02. KO EXTERNO (KOE)',
-                          'PLANTILLA ALISTAMIENTO': 'P03. PLANTILLA ALISTAMIENTO',
-                          'PEM (EJECUCION)': 'P04. PEM (EJECUCION)',
-                          'DOCUMENTACION (PREPARACION)': 'P05. DOCUMENTACION (PREPARACION)',
-                          'REUNION SEGUIMIENTO - INTERNA': 'P06. REUNION SEGUIMIENTO - INTERNA',
-                          'REUNION SEGUIMIENTO - CLIENTE': 'P07. REUNION SEGUIMIENTO - CLIENTE',
-                          'CSC (CREACION TAREA)': 'P08. CSC (CREACION TAREA)',
-                          'ESPECIALISTA ASIGNADO': 'N01. ESPECIALISTA ASIGNADO',
-                          'PLANTILLA ENVIADA': 'N02. PLANTILLA ENVIADA',
-                          'ACTIVIDADES FINALIZADAS': 'N03. ACTIVIDADES FINALIZADAS',
-                          'CSC (ENTREGA ACEPTADA)': 'N04. CSC (ENTREGA ACEPTADA)',
-                          'WO SIN ACTIVIDAD': 'N05. WO SIN ACTIVIDAD',
-                          'WO CANCELADA': 'N06. WO CANCELADA',
-                          'KOI PENDIENTE': 'N07. KOI PENDIENTE',
-                          'KOE PENDIENTE': 'N08. KOE PENDIENTE',
-                          'RECURSOS PENDIENTES': 'N09. RECURSOS PENDIENTES',
-                          'RECURSOS CAMBIADOS': 'N10. RECURSOS CAMBIADOS',
-                          'PEM DEMORADA': 'N11. PEM DEMORADA',
-                          'PEM COMPLETA': 'N12. PEM COMPLETA',
-                          'EN MONITOREO': 'N13. EN MONITOREO',
-                          'FORTICLOUD AGREGADO': 'N14. FORTICLOUD AGREGADO',
-                          'RADIUS AGREGADO': 'N15. RADIUS AGREGADO',
-                          'ESCALAMIENTO A TERCERO': 'N16. ESCALAMIENTO A TERCERO',
-                          'DEVOLUCION PM x INACTIVIDAD': 'N17. DEVOLUCION PM x INACTIVIDAD',
-                          'ENTREGA PARCIAL': 'N18. ENTREGA PARCIAL',
-                          'CIERRE WO POR SLA': 'N19. CIERRE WO POR SLA',
-                          'INICIO DE VENTANA MTO': 'N20. INICIO DE VENTANA MTO',
-                          'FINAL DE VENTANA MTO': 'N21. FINAL DE VENTANA MTO',
-                          'SE AÑADEN LICENCIAS': 'N22. SE AÑADEN LICENCIAS',
-                          'NOTA/COMENTARIO': 'N23. NOTA/COMENTARIO'
-                          }
         titleText.delete("1.0", "end")
-        titleText.insert("1.0", log_option_map.get(selected_title.get(), '-'))
+        titleText.insert("1.0", selected_title.get())
         bodyText.delete("1.0", "end")
-        bodyText.insert("1.0", log_option_map.get(selected_title.get(), '-'))
+        bodyText.insert("1.0", selected_title.get())
 
     ## Anuncio de error digitando el tiempo
 
@@ -478,8 +446,12 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     draw_wolist()
     draw_title()
 
-
-
+    ## Función lanza ventana y alarma de finalización
+    def announce_finish_message():
+        tk.messagebox.showinfo("WO TO WORKPENDING", "The activity time has finished. Please, documentate the WO or set additional INPRG time")
+    def announce_finish_sound():
+        playsound("alarm.mp3")
+        
 
     
     ##Función que añade el log al terminar el contador y cambia la WO a workpending
@@ -487,8 +459,12 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
     def counter_finish(wo_finished):
         ttext = "Finished/Finalizado"
         btext = "Finished/Finalizado"
-        playsound("alarm.mp3")
-        tk.messagebox.showinfo("WO TO WORKPENDING", "The activity time has finished. Please, documentate the WO or set more INPRG time")
+        #Se paraleliza anuncio para evitar de interrumpa programa
+        announce_m_finish_thread = threading.Thread(target=announce_finish_message)
+        announce_s_finish_thread = threading.Thread(target=announce_finish_sound)
+        announce_m_finish_thread.start()
+        announce_s_finish_thread.start()
+        
         comm.changer(wo_finished, 'WORKPENDING', ttext, btext, True)
         print("La WO pasó a workpending")
 
@@ -513,12 +489,9 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
 
 
 
-    # Crear el hilo
+    # Crear el hilo para revisión de los contadores
     check_time_thread = threading.Thread(target=check_time)
-
-    
-
-    # Iniciar el hilo
+    # Iniciar el hilo de revisión
     check_time_thread.start()
  
 
@@ -585,38 +558,40 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
 
     # Create log title box
     log_options = ('---',
-                   'REVISION PRELIMINAR DEL PROYECTO',
-                   'KO INTERNO (KOI)',
-                   'KO EXTERNO (KOE)',
-                   'PLANTILLA ALISTAMIENTO',
-                   'PEM (EJECUCION)',
-                   'DOCUMENTACION (PREPARACION)',
-                   'REUNION SEGUIMIENTO - INTERNA',
-                   'REUNION SEGUIMIENTO - CLIENTE',
-                   'CSC (CREACION TAREA)',
-                   'ESPECIALISTA ASIGNADO',
-                   'PLANTILLA ENVIADA',
-                   'ACTIVIDADES FINALIZADAS',
-                   'CSC (ENTREGA ACEPTADA)',
-                   'WO SIN ACTIVIDAD',
-                   'WO CANCELADA',
-                   'KOI PENDIENTE',
-                   'KOE PENDIENTE',
-                   'RECURSOS PENDIENTES',
-                   'RECURSOS CAMBIADOS',
-                   'PEM DEMORADA',
-                   'PEM COMPLETA',
-                   'EN MONITOREO',
-                   'FORTICLOUD AGREGADO',
-                   'RADIUS AGREGADO',
-                   'ESCALAMIENTO A TERCERO',
-                   'DEVOLUCION PM x INACTIVIDAD',
-                   'ENTREGA PARCIAL',
-                   'CIERRE WO POR SLA',
-                   'INICIO DE VENTANA MTO',
-                   'FINAL DE VENTANA MTO',
-                   'SE AÑADEN LICENCIAS',
-                   'NOTA/COMENTARIO'
+                   'P00. PROJECT INITIAL REVIEW',
+                   'P01. INTERNAL KICK OFF',
+                   'P02. EXTERNAL KICK OFF',
+                   'P03. CONFIG TEMPLATES',
+                   'P04. INSTALLATION (ONGOING)',
+                   'P05. DOCUMENTATION (ONGOING)',
+                   'P06. INTERNAL FOLLOW-UP MEETING',
+                   'P07. EXTERNAL FOLLOW-UP MEETING',
+                   'P08. CSC TASK CREATION',
+                   'N01. SPECIALIST ASSIGNED',
+                   'N02. TEMPLATES SENT',
+                   'N03. ACTIVITIES COMPLETED',
+                   'N04. HANDOVER ACCEPTED BY CSC',
+                   'N05. PROJECT HALTED',
+                   'N06. WO CANCELLED',
+                   'N07. PENDING INTERNAL KICK OFF',
+                   'N08. PENDING EXTERNAL KICK OFF',
+                   'N09. PENDING RESOURCES',
+                   'N10. RESOURCES CHANGES',
+                   'N11. INSTALLATION DELAYED',
+                   'N12. INSTALLATION COMPLETED',
+                   'N13. MONITORING',
+                   'N14. ADDED TO FORTICLOUD',
+                   'N15. ADDED TO RADIUS/RANCID',
+                   'N16. THIRD-PARTY ESCALATION',
+                   'N17. RETURNED DUE TO INACTIVITY',
+                   'N18. PARTIAL HANDOVER',
+                   'N19. SLA CROSSED',
+                   'N20. MAINTENANCE WINDOW STARTED',
+                   'N21. MAINTENANCE WINDOW COMPLETED',
+                   'N22. HANDOVER ADJUSTMENTS',
+                   'N23. CHANGE CONTROL FORMAT SENT',
+                   'N24. LICENSES ADDED',
+                   'N25. NOTE'
                    )
     selected_title = tk.StringVar()
     titlelabel = tk.Label(master=frm_right_up, text="Title: ")

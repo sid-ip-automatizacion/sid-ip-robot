@@ -240,7 +240,9 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
                 else:
                     tk.messagebox.showinfo("TIME ERROR", "The minutes has to be a numeric value between 0 and 60. The hours has to be a numeric value between 0 and 8.")
             else:
+                counters[current_wo.id].finish()
                 comm.changer(current_wo, state_cb.get(), ttext, btext, wrlog_value.get())
+                handle_click_update()
                 counters[current_wo.id].finish()
                 announce_m_finish_thread = threading.Thread(target=announce_finish_short_message)
                 announce_s_finish_thread = threading.Thread(target=announce_finish_sound)
@@ -457,7 +459,7 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
 
     ## Función lanza ventana y alarma de finalización
     def announce_finish_short_message():
-        tk.messagebox.showinfo("WO TO WORKPENDING" "The activity time has ended before the counter expires")
+        tk.messagebox.showinfo("WO TO WORKPENDING", "The activity time has ended before the counter expires")
     def announce_finish_message():
         tk.messagebox.showinfo("WO TO WORKPENDING", "The activity time has finished. Please, documentate the WO or set additional INPRG time")
     def announce_finish_sound():
@@ -643,8 +645,10 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
 
     hourlabel = tk.Label(master=frm_right_up, text="Enter hours: ")
     hour_entry = tk.Text(master=frm_right_up, width=5, height=1)
+    hour_entry.insert("1.0","0")
     minlabel = tk.Label(master=frm_right_up, text="Enter minutes: ")
     min_entry = tk.Text(master=frm_right_up, width=5, height=1)
+    min_entry.insert("1.0","0")
 
     settime_chbutt.grid(row=9, column=0, columnspan=2)
     hourlabel.grid(row=10, column=0, sticky=tk.E)

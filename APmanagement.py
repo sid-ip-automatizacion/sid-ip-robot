@@ -635,7 +635,12 @@ def main_function(root_win, meraki_key_api):
                         main_dic_results.extend(vdom_ans['results'])
                 for ap_operational in range(len(main_dic_results)):
                     ap = AccessPoint('fortinet')
-                    ap.model = main_dic_results[ap_operational]['os_version']
+                    #Condicional para los casos en los que el FAP está caído y no hay key 'os_version'
+                    if 'os_version' in main_dic_results[ap_operational]:
+                        ap.model = main_dic_results[ap_operational]['os_version']
+                    else:
+                        ap.model = None  
+                    print(ap.model)
                     ap.name = main_dic_results[ap_operational]['name']
                     ap.description = main_dic_results[ap_operational]['location']
                     ap.mac = main_dic_results[ap_operational]['board_mac']

@@ -10,6 +10,7 @@ Para ejecutar en python se deben incluir las siguientes librerías
 - passlib
 - openpyxl
 - meraki
+- ninja2
 
 ******************* USER ENVIRONMENT *******************
 

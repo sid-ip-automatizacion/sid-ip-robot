@@ -7,12 +7,12 @@
         table {
             font-family: Arial, sans-serif;
             border-collapse: collapse;
-            width: 100%;
+            width: 50%;
         }
         td, th {
             border: 1px solid #dddddd;
             text-align: center;
-            padding: 8px;
+            padding: 10px;
         }
         th {
             background-color: #fee8ca;
@@ -21,24 +21,25 @@
 </head>
 <body>
     <h2></h2>
-    <p>Buen día,</p>
-    <p>Damos inicio a la siguiente ventana de mantenimiento.</p>
+    <p>Good day,</p>
+    <p>The following information may be of interest to you as it may represent a certain impact or vulnerability of your service.</p>
+    <p>For more information, refer to the RFC of the activity</p>
     <table border="1" cellspacing="0" cellpadding="5">
         <tr>
-          <th colspan="4">VENTANA DE MANTENIMIENTO</th>
+          <th colspan="4">MAINTENANCE WINDOW</th>
         </tr>
         <tr>
           <td colspan="2">RFC: {{rfc}}</td>
-          <td colspan="2">ESTADO: {{status}}</td>
+          <td colspan="2">STATUS: {{status}}</td>
         </tr>
         <tr>
-          <td>Inicio</td>
+          <td>START</td>
           <td>{{start_date}}</td>
-          <td>Finalización</td>
+          <td>END</td>
           <td>{{end_date}}</td>
         </tr>
         <tr>
-          <td colspan="4" align="center">Actividad: {{details}}</td>
+          <td colspan="4" align="center">ACTIVITY: {{details}}</td>
         </tr>
         <tr>
           <td colspan="4" align="center">
@@ -46,6 +47,7 @@
           </td>
         </tr>
       </table>
-    <p>Atentamente,<br>IP Implementation Engineer</p>
+    <p>Please note that this activity was planned and approved according to the processes agreed between SID-IP and CSC-CHANGE.</p>
+    <p>Greetings,<br>IP Implementation Engineer</p>
 </body>
 </html>

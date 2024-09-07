@@ -201,8 +201,14 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
         for current_wo in wo_selected_list:
             msg = "la WO # " + str(current_wo.id) + " cambiara su estado a: " + state_cb.get()
             print("\n", msg)
-    default_mw_text="""rfc: <RFC>
-status: <STATUS>
+    default_mw_text_1="""rfc: <RFC>
+status: STARTED
+start_date: yyyy-mm-dd hh:mm
+end_date: yyyy-mm-dd hh:mm
+details: <MW INFO>
+"""
+    default_mw_text_2="""rfc: <RFC>
+status: COMPLETED
 start_date: yyyy-mm-dd hh:mm
 end_date: yyyy-mm-dd hh:mm
 details: <MW INFO>
@@ -212,9 +218,9 @@ details: <MW INFO>
         titleText.insert("1.0", selected_title.get())
         bodyText.delete("1.0", "end")
         if 'N20.'in selected_title.get():
-            bodyText.insert("1.0", default_mw_text)
+            bodyText.insert("1.0", default_mw_text_1)
         elif 'N21.'in selected_title.get():
-            bodyText.insert("1.0", default_mw_text)
+            bodyText.insert("1.0", default_mw_text_2)
         else:
             bodyText.insert("1.0", selected_title.get())
 
@@ -481,7 +487,7 @@ details: <MW INFO>
     def announce_finish_message():
         tk.messagebox.showinfo("WO TO WORKPENDING", "The activity time has finished. Please, documentate the WO or set additional INPRG time")
     def announce_finish_sound():
-        playsound("alarm.mp3")
+        playsound("resources/alarm.mp3")
         
 
     

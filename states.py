@@ -7,6 +7,7 @@ from playsound import playsound
 
 
 import timekeeper
+import mw_email_gen
 
 stop_check_time = False
 
@@ -195,16 +196,27 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
            list_item[4].deselect()
         select_wo_list()
 
+    mw_flag= False
     def state_changed(event):
         for current_wo in wo_selected_list:
             msg = "la WO # " + str(current_wo.id) + " cambiara su estado a: " + state_cb.get()
             print("\n", msg)
-
+    default_mw_text="""rfc: <RFC>
+status: <STATUS>
+start_date: yyyy-mm-dd hh:mm
+end_date: yyyy-mm-dd hh:mm
+details: <MW INFO>
+"""
     def select_log(event):
         titleText.delete("1.0", "end")
         titleText.insert("1.0", selected_title.get())
         bodyText.delete("1.0", "end")
-        bodyText.insert("1.0", selected_title.get())
+        if 'N20.'in selected_title.get():
+            bodyText.insert("1.0", default_mw_text)
+        elif 'N21.'in selected_title.get():
+            bodyText.insert("1.0", default_mw_text)
+        else:
+            bodyText.insert("1.0", selected_title.get())
 
     ## Anuncio de error digitando el tiempo
 
@@ -216,19 +228,25 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
         else:
             ttext = titleText.get("1.0", "end-1c")
             print(ttext)
+   
         if len(bodyText.get("1.0", "end-1c")) == 0:
             btext = "body_default"
             print(btext)
         else:
             btext = bodyText.get("1.0", "end-1c")
             print(btext)
+        # Condicional para verificar si hay una MW
+        if 'N20.' in titleText.get("1.0", "end-1c"):
+            mw_email_gen.generate_MW_email(bodyText.get("1.0", "end-1c"))
+        if 'N21.' in titleText.get("1.0", "end-1c"):
+            mw_email_gen.generate_MW_email(bodyText.get("1.0", "end-1c"))
         for current_wo in wo_selected_list:
             
             ##TIME-CODE##
             
             if state_cb.get() == 'INPRG' and settime_value.get() == True :
-                print("horas: ", int(hour_entry.get("1.0", "end-1c")), type(int(hour_entry.get("1.0", "end-1c"))))
-                print("minutos: ",int(min_entry.get("1.0", "end-1c")),type(int(min_entry.get("1.0", "end-1c"))))
+                #print("horas: ", int(hour_entry.get("1.0", "end-1c")), type(int(hour_entry.get("1.0", "end-1c"))))
+                #print("minutos: ",int(min_entry.get("1.0", "end-1c")),type(int(min_entry.get("1.0", "end-1c"))))
 
                 if 0 <= int(hour_entry.get("1.0", "end-1c")) <= 8 and 0 <= int(min_entry.get("1.0", "end-1c")) <= 60:
 
@@ -485,9 +503,9 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
 
     def check_time():
         while stop_check_time == False: 
-            print("Time check")
+            #print("Time check")
             for wo, counter in counters.items():   
-                print('La WO ', wo, 'Le quedan ', counter.secs_rest, ' Segundos' )
+                #print('La WO ', wo, 'Le quedan ', counter.secs_rest, ' Segundos' )
                 if counter.secs_rest == 1 or WO_finish_flag[wo]==True:
                     counter.finish()
                     counter_finish(list_wo_to_change[wo])
@@ -558,16 +576,19 @@ def state_change(root, owner_sccd, user_sccd, pass_sccd, login_url):
 
 
 
-
-        
-
-
-
     # Create checkbox aplicar logs
     wrlog_value = tk.BooleanVar()
     wrlog_value.set(True)
-    wrlog_chbutt = ttk.Checkbutton(master=frm_right_up, text='Create new log', variable=wrlog_value)
+    def erase_logs ():
+        if wrlog_value.get() == 0:
+            titleText.delete("1.0", "end")
+            bodyText.delete("1.0", "end")
+
+    wrlog_chbutt = ttk.Checkbutton(master=frm_right_up, text='Create new log', variable=wrlog_value, command=erase_logs)
     wrlog_chbutt.grid(row=2, column=0, columnspan=2)
+
+    
+
 
     # Create log title box
     log_options = ('---',

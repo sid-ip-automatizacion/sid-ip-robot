@@ -263,22 +263,25 @@ details: <MW INFO>
                         counters[current_wo.id].count(int(hour_entry.get("1.0", "end-1c")),int(min_entry.get("1.0", "end-1c")))
                 else:
                     tk.messagebox.showinfo("TIME ERROR", "The minutes has to be a numeric value between 0 and 60. The hours has to be a numeric value between 0 and 8.")
-            else:
-                counters[current_wo.id].finish()
-                comm.changer(current_wo, state_cb.get(), ttext, btext, wrlog_value.get())
-                handle_click_update()
-                counters[current_wo.id].finish()
-                announce_m_finish_thread = threading.Thread(target=announce_finish_short_message)
-                announce_s_finish_thread = threading.Thread(target=announce_finish_sound)
-                announce_m_finish_thread.start()
-                announce_s_finish_thread.start()
-                WO_finish_flag[current_wo.id]=False
-
             
+            elif state_cb.get() == 'INPRG' and settime_value.get() == False :
+                comm.changer(current_wo, state_cb.get(), ttext, btext, wrlog_value.get())
+            else:
+                WO_info_dic = next((item for item in comm.wo_values if item.get('woid') == current_wo.id), None)
+                if WO_info_dic['wo_status']== 'INPRG':
+                    counters[current_wo.id].finish()
+                    comm.changer(current_wo, state_cb.get(), ttext, btext, wrlog_value.get())
+                    handle_click_update()
+                    counters[current_wo.id].finish()
+                    announce_m_finish_thread = threading.Thread(target=announce_finish_short_message)
+                    announce_s_finish_thread = threading.Thread(target=announce_finish_sound)
+                    announce_m_finish_thread.start()
+                    announce_s_finish_thread.start()
+                    WO_finish_flag[current_wo.id]=False
+                else:
+                    comm.changer(current_wo, state_cb.get(), ttext, btext, wrlog_value.get())
+
         handle_click_update()
-
-
-
 
     def handle_click_update():
         print("actualizar todas la wo")
@@ -487,7 +490,9 @@ details: <MW INFO>
     def announce_finish_message():
         tk.messagebox.showinfo("WO TO WORKPENDING", "The activity time has finished. Please, documentate the WO or set additional INPRG time")
     def announce_finish_sound():
-        playsound("resources/alarm.mp3")
+        if sound_alarm.get() == True:
+            playsound("resources/alarm.mp3")
+        
         
 
     
@@ -556,9 +561,10 @@ details: <MW INFO>
     frm_right_up.rowconfigure(8, weight=1, minsize=10)
 
     ##TIME-CODE##
-    frm_right_up.rowconfigure(9, weight=1, minsize=10) #new checkbox para aplicar contador
+    frm_right_up.rowconfigure(9, weight=1, minsize=10) #new checkbox para aplicar contador #enable alarm
     frm_right_up.rowconfigure(10, weight=1, minsize=10) #new entry minutes
     frm_right_up.rowconfigure(11, weight=1, minsize=10) #new entry hours
+    frm_right_up.rowconfigure(12, weight=1, minsize=10)
 
     frm_right_down = tk.Frame(master=frm_right)
     frm_right_down.grid(row=1, column=0, sticky="new")
@@ -667,7 +673,11 @@ details: <MW INFO>
 
     settime_value = tk.BooleanVar()
     settime_value.set(False)
-    settime_chbutt = ttk.Checkbutton(master=frm_right_up, text='Set time in "INPRG', variable=settime_value)
+    settime_chbutt = ttk.Checkbutton(master=frm_right_up, text='Set INPRG time', variable=settime_value)
+
+    sound_alarm = tk.BooleanVar()
+    sound_alarm.set(True)
+    sound_alarm_chbutt = ttk.Checkbutton(master=frm_right_up, text='Sound alarm', variable=sound_alarm)
     
 
     hourlabel = tk.Label(master=frm_right_up, text="Enter hours: ")
@@ -677,7 +687,9 @@ details: <MW INFO>
     min_entry = tk.Text(master=frm_right_up, width=5, height=1)
     min_entry.insert("1.0","0")
 
-    settime_chbutt.grid(row=9, column=0, columnspan=2)
+    settime_chbutt.grid(row=9, column=0, sticky=tk.E)
+    sound_alarm_chbutt.grid(row=9, column=1, sticky=tk.W)
+
     hourlabel.grid(row=10, column=0, sticky=tk.E)
     hour_entry.grid(row=10, column=1, sticky=tk.W)
     minlabel.grid(row=11, column=0, sticky=tk.E)

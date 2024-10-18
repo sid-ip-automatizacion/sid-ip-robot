@@ -572,7 +572,7 @@ details: <MW INFO>
     # search_text
     searchlabel = tk.Label(master=frm_right_up, text="Search: ")
     searchlabel.grid(row=0, column=0, pady=2, sticky=tk.E)
-    search_text = tk.Text(master=frm_right_up, width=15, height=1)
+    search_text = tk.Text(master=frm_right_up, width=30, height=1)
     search_text.grid(row=0, column=1, sticky=tk.W, pady=2)
     search_text.bind('<KeyRelease>', searchChange)
 
@@ -596,8 +596,30 @@ details: <MW INFO>
             titleText.delete("1.0", "end")
             bodyText.delete("1.0", "end")
 
-    wrlog_chbutt = ttk.Checkbutton(master=frm_right_up, text='Create new log', variable=wrlog_value, command=erase_logs)
-    wrlog_chbutt.grid(row=2, column=0, columnspan=2)
+
+    log_frame = tk.Frame(frm_right_up)  
+    log_frame.grid(row=2, column=1)
+
+    wrlog_chbutt = ttk.Checkbutton(master=log_frame, text='Create new log', variable=wrlog_value, command=erase_logs)
+    
+
+
+
+    def re_draw_logs():
+        if set_spanish.get():
+            title_cb['values'] = log_options_spanish
+        else:
+            title_cb['values'] = log_options
+        title_cb.set('')
+
+    set_spanish = tk.BooleanVar()
+    set_spanish.set(False)
+    set_spanish_chbutt = ttk.Checkbutton(master=log_frame, text='Logs in spanish', variable=set_spanish, command=re_draw_logs)
+
+    wrlog_chbutt.grid(row=0, column=0)
+    set_spanish_chbutt.grid(row=0, column=1)
+    
+    
 
     
 
@@ -639,17 +661,62 @@ details: <MW INFO>
                    'N24. LICENSES ADDED',
                    'N25. NOTE'
                    )
+    
+    log_options_spanish = ('---',
+                   'P00. REVISION PRELIMINAR DEL PROYECTO',
+                   'P01. KO INTERNO (KOI)',
+                   'P02. KO EXTERNO (KOE)',
+                   'P03. PLANTILLA ALISTAMIENTO',
+                   'P04. PEM (EJECUCION)',
+                   'P05. DOCUMENTACION (PREPARACION)',
+                   'P06. REUNION SEGUIMIENTO - INTERNA',
+                   'P07. REUNION SEGUIMIENTO - CLIENTE',
+                   'P08. CSC (CREACION TAREA)',
+                   'N01. ESPECIALISTA ASIGNADO',
+                   'N02. PLANTILLA ENVIADA',
+                   'N03. ACTIVIDADES FINALIZADAS',
+                   'N04. CSC (ENTREGA ACEPTADA)',
+                   'N05. WO SIN ACTIVIDAD',
+                   'N06. WO CANCELADA',
+                   'N07. KOI PENDIENTE',
+                   'N08. KOE PENDIENTE',
+                   'N09. RECURSOS PENDIENTES',
+                   'N10. RECURSOS CAMBIADOS',
+                   'N11. PEM DEMORADA',
+                   'N12. PEM COMPLETA',
+                   'N13. EN MONITOREO',
+                   'N14. FORTICLOUD AGREGADO',
+                   'N15. RADIUS AGREGADO',
+                   'N16. ESCALAMIENTO A TERCERO',
+                   'N17. DEVOLUCION PM x INACTIVIDAD',
+                   'N18. ENTREGA PARCIAL',
+                   'N19. CIERRE WO POR SLA',
+                   'N20. INICIO DE VENTANA MTO',
+                   'N21. FINAL DE VENTANA MTO',
+                   'N22. AJUSTES EN LA ENTREGA',
+                   'N23. FORMATO DE CONTROL DE CAMBIOS ENVIADO',
+                   'N24. SE AÑADEN LICENCIAS',
+                   'N25. NOTA/COMENTARIO'
+                   )
     selected_title = tk.StringVar()
     titlelabel = tk.Label(master=frm_right_up, text="Title: ")
     titlelabel.grid(row=3, column=0, sticky=tk.E)
     title_cb = ttk.Combobox(master=frm_right_up, textvariable=selected_title, width=40)
-    title_cb['values'] = log_options
+
+    if set_spanish.get():
+        title_cb['values'] = log_options_spanish
+    else:
+        title_cb['values'] = log_options
+
     title_cb['state'] = 'readonly'
     title_cb.current(0)
     title_cb.grid(row=3, column=1, sticky=tk.W)
     title_cb.bind('<<ComboboxSelected>>', select_log)
     titleText = tk.Text(master=frm_right_up, width=30, height=1)
     titleText.grid(row=4, column=1, sticky=tk.W)
+
+
+
 
     # Create log description box
     bodylabel = tk.Label(master=frm_right_up, text="Body: ")
@@ -671,29 +738,33 @@ details: <MW INFO>
      ##TIME-CODE##
     ### Define timer ###
 
+    time_frame = tk.Frame(frm_right_up)  
+    time_frame.grid(row=9, column=1)
+
     settime_value = tk.BooleanVar()
     settime_value.set(False)
-    settime_chbutt = ttk.Checkbutton(master=frm_right_up, text='Set INPRG time', variable=settime_value)
+    settime_chbutt = ttk.Checkbutton(master=time_frame, text='Set INPRG time', variable=settime_value)
 
     sound_alarm = tk.BooleanVar()
     sound_alarm.set(True)
-    sound_alarm_chbutt = ttk.Checkbutton(master=frm_right_up, text='Sound alarm', variable=sound_alarm)
-    
+    sound_alarm_chbutt = ttk.Checkbutton(master=time_frame, text='Sound alarm', variable=sound_alarm)
 
-    hourlabel = tk.Label(master=frm_right_up, text="Enter hours: ")
-    hour_entry = tk.Text(master=frm_right_up, width=5, height=1)
+
+
+    hourlabel = tk.Label(master=time_frame, anchor="center", text="Enter hours: ",)
+    hour_entry = tk.Text(master=time_frame, width=5, height=1)
     hour_entry.insert("1.0","0")
-    minlabel = tk.Label(master=frm_right_up, text="Enter minutes: ")
-    min_entry = tk.Text(master=frm_right_up, width=5, height=1)
+    minlabel = tk.Label(master=time_frame, anchor="center", text="Enter minutes: ")
+    min_entry = tk.Text(master=time_frame, width=5, height=1)
     min_entry.insert("1.0","0")
 
-    settime_chbutt.grid(row=9, column=0, sticky=tk.E)
-    sound_alarm_chbutt.grid(row=9, column=1, sticky=tk.W)
+    settime_chbutt.grid(row=0, column=0)
+    sound_alarm_chbutt.grid(row=0, column=1)
 
-    hourlabel.grid(row=10, column=0, sticky=tk.E)
-    hour_entry.grid(row=10, column=1, sticky=tk.W)
-    minlabel.grid(row=11, column=0, sticky=tk.E)
-    min_entry.grid(row=11, column=1, sticky=tk.W)
+    hourlabel.grid(row=1, column=0)
+    hour_entry.grid(row=1, column=1)
+    minlabel.grid(row=2, column=0)
+    min_entry.grid(row=2, column=1)
 
 
     frm_right_down.columnconfigure(0, weight=1, minsize=10)

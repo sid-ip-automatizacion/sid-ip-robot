@@ -878,7 +878,7 @@ def main_function(root_win, meraki_key_api):
 
         def run_gui(self):
             """
-            Ejecuta la interfaz gráfica de descargar información de APs
+           Ejecuta la interfaz gráfica de descargar información de APs 
             """
             def select_vendor(event):
                 vendors_label_map = {'Virtual Ruckus-vSZ': 'ruckus_vsz', 'Onsite Ruckus-SZ': 'ruckus_sz_onsite', 'Meraki': 'meraki', 'Fortinet': 'fortinet'}

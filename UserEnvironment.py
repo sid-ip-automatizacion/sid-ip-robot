@@ -10,6 +10,7 @@ import states
 import new_owner
 import APmanagement
 import GUIconfigsw
+import atp_sw.main as atp_sw
 
 class UserEnvironment:
     """
@@ -59,6 +60,13 @@ class UserEnvironment:
         self.clear_work_area()  # Limpia el area de trabajo
         GUIconfigsw.exec_gui(self.get_work_area(), self.get_key_meraki())  # Ejecuta la configuracion se switches en el ambiente usuario
 
+    def run_atp_sw(self):
+        """
+        Carga la ventana de ATP de SW 
+        """
+        self.clear_work_area()  # Limpia el area de trabajo
+        atp_sw.main_function(self.get_work_area(), self.get_key_meraki())  # Ejecuta la venta  de ATP switches en el ambiente usuario
+
 
     def initial_work_area(self):
         """
@@ -81,6 +89,11 @@ class UserEnvironment:
         btn_sw = tkinter.Button(master=self.__work_area, text="SW Configuration", height=2,
                                  command=self.run_sw)
         btn_sw.grid(row=3, column=0, pady=5)
+
+        # Boton de ATP SW
+        btn_sw_atp = tkinter.Button(master=self.__work_area, text="ATP SW", height=2,
+                                 command=self.run_atp_sw)
+        btn_sw_atp.grid(row=4, column=0, pady=5)
 
         self.__root.mainloop()
 
@@ -139,6 +152,7 @@ class UserEnvironment:
         funmenu.add_command(label="Change WO owner", command=self.run_new_owner)
         funmenu.add_command(label="AP Management", command=self.run_aps)
         funmenu.add_command(label="SW Configuration", command=self.run_sw)
+        funmenu.add_command(label="SW ATP", command=self.run_atp_sw)
         funmenu.add_separator()
         funmenu.add_command(label="Return to init", command=self.initial_work_area)
         # Menu Acerca de
@@ -360,7 +374,7 @@ class UserEnvironment:
         Muestra la ventana Acerca de"
         """
         about_win = tkinter.Tk()
-        about_text = tkinter.Label(about_win, text='version: 4.3.4'
+        about_text = tkinter.Label(about_win, text='version: 4.4'
                                                    '\nSID-IP release'
                                                   '\n\nDesarrollado por SID-IP Team, Liberty Networks'
                                                   '\nEquipo de desarrollo:'

@@ -9,9 +9,10 @@ class Timer:
     def __init__(self):
         
         """
-        El contructor recibe como entrada el widgets donde se va a dibujar el contador
+        Función contructora de contrador
         Inicialización de todos los valores del contador en 0
         Inicialización de las vanderas utilizadas para detener en contador y reiniciarlo
+        El objeto gestiona una variable StringVar()  de tkinter que es consumida en el módulo de states
 
         """
 
